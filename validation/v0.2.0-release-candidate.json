@@ -1,6 +1,6 @@
 {
   "receipt_version": "0.2",
-  "validated_at": "2026-07-23T10:23:28-07:00",
+  "validated_at": "2026-07-23T10:34:55-07:00",
   "status": "hold_pending_council_and_repository_governance",
   "candidate_release": "v0.2.0",
   "repository": "https://github.com/JalenBuildsHub/PermitMesh",
@@ -44,14 +44,14 @@
       "artifacts": [
         {
           "name": "permitmesh-0.2.0-py3-none-any.whl",
-          "sha256": "e9c812252bcd5015491923e95f138b31031b468f515f63846fecc536532274ac"
+          "sha256": "ea15aced056076b901487310245644a25f4924d40958f42275fef78c9c8723a1"
         },
         {
           "name": "permitmesh-0.2.0.tar.gz",
-          "sha256": "afacff8f1dcfe774f62c7163aaef90dd92a05bf6806915b5fea2cd6baaa5db6a"
+          "sha256": "fbf35905031d401ad0e735f9d76a3aa1ab078f14b70bd429cee7c0ca51ca200a"
         }
       ],
-      "note": "Candidate artifacts are local validation outputs and must be rebuilt from the final documentation commit before publication."
+      "note": "Candidate artifacts were rebuilt from the reconciled, signed local history and remain held from publication until the external gates close."
     }
   },
   "public_action_gate": {
