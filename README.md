@@ -1,5 +1,7 @@
 # PermitMesh
 
+[![CI](https://github.com/JalenBuildsHub/PermitMesh/actions/workflows/ci.yml/badge.svg)](https://github.com/JalenBuildsHub/PermitMesh/actions/workflows/ci.yml)
+
 **A portable policy-decision profile for AI agents changing software.**
 
 > **PDP, not PEP.** PermitMesh evaluates policy. It does not authenticate an
@@ -187,6 +189,8 @@ Stars are discovery, not success. The initial North Star is **verified external 
 The first target is five verified runs across at least two external teams, with zero known false allows.
 
 See [docs/NORTH_STAR.md](docs/NORTH_STAR.md) for the evidence, anti-goals, and staged campaign.
+External maintainers can [report a conformance run](https://github.com/JalenBuildsHub/PermitMesh/issues/new?template=conformance-run.yml)
+after removing secrets and sensitive workspace details.
 
 ## Project status
 

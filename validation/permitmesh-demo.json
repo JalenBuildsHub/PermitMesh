@@ -1,6 +1,6 @@
 {
   "artifact_version": "0.1",
-  "validated_at": "2026-07-23T01:52:50-07:00",
+  "validated_at": "2026-07-23T01:55:00-07:00",
   "environment": {
     "os": "Windows",
     "python": "3.11 and 3.13",
@@ -64,6 +64,13 @@
       "commit": "2bdba7e5215796a2cd85c668f2de8f9c890f9491",
       "elapsed_seconds": 12.554,
       "threshold_seconds": 600
+    },
+    {
+      "name": "public_ci",
+      "command": "GitHub Actions CI matrix on Python 3.11 and 3.13",
+      "result": "pass",
+      "commit": "8706171bd9f1a920f1c8270611461c04e212b6ef",
+      "url": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/29992978931"
     },
     {
       "name": "nostr_event_template",

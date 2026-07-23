@@ -1,6 +1,6 @@
 # PermitMesh Launch Campaign
 
-Status: operator-authorized campaign; no external messages sent
+Status: public repository live; independent conformance outreach next
 
 ## Positioning
 

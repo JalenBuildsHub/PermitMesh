@@ -6,7 +6,7 @@
   "project_name": "PermitMesh",
   "project_type": "open_source",
   "lifecycle_state": "idea",
-  "lifecycle_detail": "Council-conditioned release candidate in progress; public release and external validation pending.",
+  "lifecycle_detail": "Public v0.1 proof released; external validation and any Buzz discussion remain pending.",
   "evidence_status": "draft",
   "rubric_applicability": "applicable",
   "north_star": "Help open-source maintainers safely delegate real work to agents by making authority narrow, portable, inspectable, and provable at every action boundary.",
