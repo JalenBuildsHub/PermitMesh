@@ -1,10 +1,10 @@
 {
   "artifact_version": "0.1",
-  "validated_at": "2026-07-23T01:45:04-07:00",
+  "validated_at": "2026-07-23T01:52:50-07:00",
   "environment": {
     "os": "Windows",
     "python": "3.11 and 3.13",
-    "installation": "direct Python 3.11 and 3.13 compatibility runs; clean committed-checkout receipt pending"
+    "installation": "direct Python 3.11 and 3.13 compatibility runs plus a fresh committed-checkout virtual environment"
   },
   "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
   "checks": [
@@ -56,6 +56,14 @@
       "command": "permitmesh conformance examples/conformance-suite.json",
       "result": "pass",
       "cases": 18
+    },
+    {
+      "name": "clean_room",
+      "command": "scripts/clean-room.ps1",
+      "result": "pass",
+      "commit": "2bdba7e5215796a2cd85c668f2de8f9c890f9491",
+      "elapsed_seconds": 12.554,
+      "threshold_seconds": 600
     },
     {
       "name": "nostr_event_template",

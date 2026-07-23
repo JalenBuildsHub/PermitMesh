@@ -1,0 +1,12 @@
+﻿{
+    "receipt_version":  "0.1",
+    "status":  "pass",
+    "source":  "clean local git clone",
+    "commit":  "2bdba7e5215796a2cd85c668f2de8f9c890f9491",
+    "python":  "Python 3.13.5",
+    "elapsed_seconds":  12.554,
+    "threshold_seconds":  600,
+    "tests":  "pass",
+    "conformance":  "18/18",
+    "enforcement_boundary":  "policy-decision-only; no tool execution"
+}
