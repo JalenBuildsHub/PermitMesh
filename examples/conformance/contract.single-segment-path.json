@@ -1,5 +1,5 @@
 {
-  "contract_version": "0.1",
+  "contract_version": "0.2",
   "issuer": {
     "id": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
     "display_name": "Jalen Studio"
@@ -19,7 +19,7 @@
     ],
     "channels": ["permitmesh/feature-agent-contract"]
   },
-  "capabilities": ["read", "edit", "shell", "test", "commit", "deploy"],
+  "capabilities": ["read", "edit"],
   "validity": {
     "not_before": "2026-07-23T00:00:00Z",
     "expires_at": "2026-07-30T00:00:00Z"
@@ -36,6 +36,7 @@
       "approvers": ["79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"]
     }
   ],
+  "operation_constraints": [],
   "lifecycle": {
     "claim_id": "claim-permitmesh-demo",
     "fencing_generation": 3

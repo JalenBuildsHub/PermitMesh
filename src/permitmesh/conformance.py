@@ -3,19 +3,20 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 import hashlib
-from importlib.metadata import PackageNotFoundError, version
 import json
 from pathlib import Path
 from typing import Any
 
-from .policy import RFC3339_PATTERN, authorize, canonical_json, verify_completion
+from .policy import (
+    IMPLEMENTATION_VERSION,
+    RFC3339_PATTERN,
+    authorize,
+    canonical_json,
+    verify_completion,
+)
 
 
-SUPPORTED_SUITE_VERSION = "0.1"
-try:
-    IMPLEMENTATION_VERSION = version("permitmesh")
-except PackageNotFoundError:
-    IMPLEMENTATION_VERSION = "0.1.1"
+SUPPORTED_SUITE_VERSION = "0.2"
 
 
 def _reject_nonfinite(value: str) -> None:
@@ -51,7 +52,9 @@ def _fixture_path(suite_dir: Path, relative_path: Any) -> Path:
     try:
         candidate.relative_to(suite_dir.resolve())
     except ValueError as exc:
-        raise ValueError(f"fixture path escapes suite directory: {relative_path!r}") from exc
+        raise ValueError(
+            f"fixture path escapes suite directory: {relative_path!r}"
+        ) from exc
     return candidate
 
 
@@ -83,7 +86,21 @@ def _outcome_for(case: dict[str, Any], suite_dir: Path) -> tuple[str, dict[str, 
             raise ValueError("contract fixture must be a JSON object")
         operation = case.get("operation", "authorize")
         if operation == "authorize":
-            decision = authorize(contract, request, now=now.astimezone(timezone.utc))
+            consumed_nonces = case.get("consumed_nonces")
+            if consumed_nonces is not None and (
+                not isinstance(consumed_nonces, list)
+                or not all(isinstance(nonce, str) for nonce in consumed_nonces)
+                or len(consumed_nonces) != len(set(consumed_nonces))
+            ):
+                raise ValueError("consumed_nonces must be a unique string array")
+            decision = authorize(
+                contract,
+                request,
+                now=now.astimezone(timezone.utc),
+                consumed_nonces=(
+                    frozenset(consumed_nonces) if consumed_nonces is not None else None
+                ),
+            )
         elif operation == "verify_completion":
             decision = verify_completion(
                 contract,
@@ -92,7 +109,9 @@ def _outcome_for(case: dict[str, Any], suite_dir: Path) -> tuple[str, dict[str, 
             )
         else:
             raise ValueError(f"unsupported conformance operation: {operation!r}")
-        return ("allow" if decision.allowed else "deny"), {"decision": decision.to_dict()}
+        return ("allow" if decision.allowed else "deny"), {
+            "decision": decision.to_dict()
+        }
     except ValueError as exc:
         return "malformed", {"error": str(exc)}
 
@@ -158,7 +177,7 @@ def run_conformance(
     passed_count = sum(1 for result in results if result["passed"])
     suite_digest = hashlib.sha256(canonical_json(suite).encode("utf-8")).hexdigest()
     return {
-        "receipt_version": "0.1",
+        "receipt_version": "0.2",
         "implementation": {"name": "permitmesh", "version": IMPLEMENTATION_VERSION},
         "suite": {
             "name": suite.get("name", source.name),

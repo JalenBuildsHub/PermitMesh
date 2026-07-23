@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://permitmesh.dev/schema/permitmesh-contract-0.1.json",
-  "title": "PermitMesh Capability Contract 0.1",
+  "$id": "https://raw.githubusercontent.com/JalenBuildsHub/PermitMesh/v0.2.0/schema/permitmesh-contract.schema.json",
+  "title": "PermitMesh Capability Contract 0.2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -13,11 +13,12 @@
     "validity",
     "limits",
     "approval_gates",
+    "operation_constraints",
     "lifecycle",
     "validation"
   ],
   "properties": {
-    "contract_version": {"const": "0.1"},
+    "contract_version": {"const": "0.2"},
     "issuer": {"$ref": "#/$defs/principal"},
     "subject": {"$ref": "#/$defs/principal"},
     "scope": {
@@ -109,6 +110,27 @@
             "minItems": 1,
             "uniqueItems": true,
             "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "operation_constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action", "operation_digest", "nonce"],
+        "properties": {
+          "action": {
+            "enum": ["shell", "test", "commit", "deploy", "publish", "spend"]
+          },
+          "operation_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "nonce": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._:-]{16,128}$"
           }
         }
       }

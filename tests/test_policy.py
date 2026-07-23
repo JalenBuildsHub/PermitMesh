@@ -18,6 +18,7 @@ from permitmesh.policy import (
     authorize,
     canonical_json,
     contract_digest,
+    operation_digest,
     to_nostr_event_template,
     validate_contract,
     verify_completion,
@@ -45,7 +46,9 @@ def load_example(name: str) -> dict:
     return json.loads((ROOT / "examples" / name).read_text(encoding="utf-8"))
 
 
-def leaf_paths(value: object, path: tuple[object, ...] = ()) -> list[tuple[object, ...]]:
+def leaf_paths(
+    value: object, path: tuple[object, ...] = ()
+) -> list[tuple[object, ...]]:
     paths: list[tuple[object, ...]] = []
     if isinstance(value, dict):
         for key, item in value.items():
@@ -131,6 +134,28 @@ class ContractValidationTests(unittest.TestCase):
             validate_contract(self.contract),
         )
 
+    def test_granted_high_risk_capability_requires_operation_constraint(self) -> None:
+        self.contract["operation_constraints"] = [
+            constraint
+            for constraint in self.contract["operation_constraints"]
+            if constraint["action"] != "deploy"
+        ]
+        self.assertIn(
+            "operation_constraints must bind granted high-risk capability 'deploy'",
+            validate_contract(self.contract),
+        )
+
+    def test_test_capability_is_treated_as_code_execution(self) -> None:
+        self.contract["operation_constraints"] = [
+            constraint
+            for constraint in self.contract["operation_constraints"]
+            if constraint["action"] != "test"
+        ]
+        self.assertIn(
+            "operation_constraints must bind granted high-risk capability 'test'",
+            validate_contract(self.contract),
+        )
+
     def test_missing_channels_is_rejected(self) -> None:
         self.contract["scope"].pop("channels")
         self.assertIn(
@@ -196,7 +221,9 @@ class ContractValidationTests(unittest.TestCase):
             one = Path(directory) / "one.json"
             two = Path(directory) / "two.json"
             one.write_text(
-                json.dumps(self.contract).replace('"max_cost_usd": 25', '"max_cost_usd": 25.0'),
+                json.dumps(self.contract).replace(
+                    '"max_cost_usd": 25', '"max_cost_usd": 25.0'
+                ),
                 encoding="utf-8",
             )
             two.write_text(json.dumps(self.contract), encoding="utf-8")
@@ -215,9 +242,7 @@ class SchemaRuntimeParityTests(unittest.TestCase):
         cls.now = datetime(2026, 7, 23, 12, tzinfo=timezone.utc)
 
     def validator(self, name: str) -> Draft202012Validator:
-        schema = json.loads(
-            (ROOT / "schema" / name).read_text(encoding="utf-8")
-        )
+        schema = json.loads((ROOT / "schema" / name).read_text(encoding="utf-8"))
         return Draft202012Validator(schema, format_checker=FormatChecker())
 
     def test_contract_required_field_deletions_never_false_allow(self) -> None:
@@ -297,6 +322,7 @@ class AuthorizationTests(unittest.TestCase):
                 "subject",
                 "channel",
                 "capability",
+                "operation_binding",
                 "repository_ref_path",
                 "budgets",
                 "claim_and_fence",
@@ -311,7 +337,9 @@ class AuthorizationTests(unittest.TestCase):
         self.assertGreaterEqual(len(decision.violations), 7)
         self.assertTrue(any("approval" in item for item in decision.violations))
         self.assertTrue(any("deny rule" in item for item in decision.violations))
-        self.assertTrue(any("fencing_generation" in item for item in decision.violations))
+        self.assertTrue(
+            any("fencing_generation" in item for item in decision.violations)
+        )
 
     def test_expired_contract_fails_closed(self) -> None:
         future = datetime(2026, 8, 1, tzinfo=timezone.utc)
@@ -365,12 +393,133 @@ class AuthorizationTests(unittest.TestCase):
 
     def test_deploy_requires_approval(self) -> None:
         self.request["action"] = "deploy"
-        decision = authorize(self.contract, self.request, now=self.now)
+        self.request["operation"] = {
+            "tool": "release.publish",
+            "arguments": {
+                "artifact_sha256": "a" * 64,
+                "environment": "staging",
+            },
+        }
+        self.request["operation_nonce"] = "permitmesh-demo-deploy-001"
+        decision = authorize(
+            self.contract,
+            self.request,
+            now=self.now,
+            consumed_nonces=frozenset(),
+        )
         self.assertFalse(decision.allowed)
         self.request["approvals"] = [
             "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
         ]
-        self.assertTrue(authorize(self.contract, self.request, now=self.now).allowed)
+        self.assertTrue(
+            (
+                decision := authorize(
+                    self.contract,
+                    self.request,
+                    now=self.now,
+                    consumed_nonces=frozenset(),
+                )
+            ).allowed
+        )
+        self.assertEqual(decision.contract_digest, contract_digest(self.contract))
+
+    def test_high_risk_action_is_bound_to_exact_operation(self) -> None:
+        self.request["action"] = "deploy"
+        self.request["operation"] = {
+            "tool": "release.publish",
+            "arguments": {
+                "artifact_sha256": "b" * 64,
+                "environment": "production",
+            },
+        }
+        self.request["operation_nonce"] = "permitmesh-demo-deploy-001"
+        self.request["approvals"] = [
+            "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+        ]
+        decision = authorize(
+            self.contract,
+            self.request,
+            now=self.now,
+            consumed_nonces=frozenset(),
+        )
+        self.assertFalse(decision.allowed)
+        self.assertIn(
+            "request operation and nonce do not match an approved constraint",
+            decision.violations,
+        )
+
+    def test_high_risk_action_requires_replay_state_and_unused_nonce(self) -> None:
+        self.request["action"] = "deploy"
+        self.request["operation"] = {
+            "tool": "release.publish",
+            "arguments": {
+                "artifact_sha256": "a" * 64,
+                "environment": "staging",
+            },
+        }
+        self.request["operation_nonce"] = "permitmesh-demo-deploy-001"
+        self.request["approvals"] = [
+            "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+        ]
+        without_state = authorize(self.contract, self.request, now=self.now)
+        self.assertIn(
+            "high-risk authorization requires an explicit consumed_nonces set",
+            without_state.violations,
+        )
+        replay = authorize(
+            self.contract,
+            self.request,
+            now=self.now,
+            consumed_nonces={"permitmesh-demo-deploy-001"},
+        )
+        self.assertIn(
+            "request.operation_nonce has already been consumed",
+            replay.violations,
+        )
+
+    def test_malformed_operation_values_fail_closed_without_exception(self) -> None:
+        self.request["action"] = "deploy"
+        self.request["operation_nonce"] = "permitmesh-demo-deploy-001"
+        self.request["approvals"] = [
+            "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+        ]
+        for arguments in (
+            {"cost": float("nan")},
+            {7: "non-string key"},
+        ):
+            with self.subTest(arguments=arguments):
+                request = deepcopy(self.request)
+                request["operation"] = {
+                    "tool": "release.publish",
+                    "arguments": arguments,
+                }
+                decision = authorize(
+                    self.contract,
+                    request,
+                    now=self.now,
+                    consumed_nonces=frozenset(),
+                )
+                self.assertFalse(decision.allowed)
+                self.assertIn(
+                    "request.operation must contain canonical JSON values",
+                    decision.violations,
+                )
+
+    def test_noncanonical_contract_values_fail_closed_without_exception(self) -> None:
+        self.contract["limits"]["max_cost_usd"] = float("nan")
+        decision = authorize(self.contract, self.request, now=self.now)
+        self.assertFalse(decision.allowed)
+        self.assertEqual(
+            decision.violations,
+            ("contract must contain canonical JSON values",),
+        )
+
+    def test_operation_digest_binds_action_tool_and_arguments(self) -> None:
+        operation = {"tool": "shell", "arguments": {"argv": ["pytest"]}}
+        base = operation_digest("shell", operation)
+        self.assertNotEqual(base, operation_digest("deploy", operation))
+        changed = {"tool": "shell", "arguments": {"argv": ["pytest", "-q"]}}
+        self.assertNotEqual(base, operation_digest("shell", changed))
 
     def test_stale_fence_fails_closed(self) -> None:
         self.request["fencing_generation"] = 2
@@ -403,9 +552,7 @@ class AuthorizationTests(unittest.TestCase):
         self.assertIn("request.approvals must be a string array", decision.violations)
 
     def test_duplicate_approvals_fail_closed(self) -> None:
-        approval = (
-            "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-        )
+        approval = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
         self.request["approvals"] = [approval, approval]
         decision = authorize(self.contract, self.request, now=self.now)
         self.assertFalse(decision.allowed)
@@ -489,6 +636,9 @@ class AuthorizationTests(unittest.TestCase):
         for path in (
             "src//permitmesh/policy.py",
             "src/./permitmesh/policy.py",
+            ".env.",
+            ".env::$DATA",
+            "CON/config",
             "",
             None,
         ):
@@ -501,6 +651,17 @@ class AuthorizationTests(unittest.TestCase):
                     "request.path must be a safe relative path",
                     decision.violations,
                 )
+
+    def test_deny_paths_are_case_insensitive_for_portable_safety(self) -> None:
+        repository = self.contract["scope"]["repositories"][0]
+        repository["allow_paths"] = ["**"]
+        for path in (".ENV", "SRC/secrets/key.txt"):
+            with self.subTest(path=path):
+                request = deepcopy(self.request)
+                request["path"] = path
+                decision = authorize(self.contract, request, now=self.now)
+                self.assertFalse(decision.allowed)
+                self.assertIn("matches a deny rule", " ".join(decision.violations))
 
     def test_present_optional_metadata_must_be_well_formed(self) -> None:
         for field, value, expected in (
@@ -523,7 +684,9 @@ class AuthorizationTests(unittest.TestCase):
         over_limit["cost_usd"] = Decimal("25.0000000000000000001")
         decision = authorize(self.contract, over_limit, now=self.now)
         self.assertFalse(decision.allowed)
-        self.assertTrue(any("exceeds max_cost_usd" in item for item in decision.violations))
+        self.assertTrue(
+            any("exceeds max_cost_usd" in item for item in decision.violations)
+        )
 
     def test_naive_evaluator_time_fails_closed(self) -> None:
         decision = authorize(
@@ -581,7 +744,7 @@ class NostrAdapterTests(unittest.TestCase):
 class ConformanceTests(unittest.TestCase):
     def test_reference_suite_passes(self) -> None:
         receipt = run_conformance(ROOT / "examples" / "conformance-suite.json")
-        self.assertEqual(receipt["summary"], {"total": 24, "passed": 24, "failed": 0})
+        self.assertEqual(receipt["summary"], {"total": 26, "passed": 26, "failed": 0})
         self.assertEqual(
             receipt["enforcement_boundary"],
             "policy-decision-only; no tool execution",
@@ -591,14 +754,18 @@ class ConformanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "nonfinite.json"
             path.write_text('{"cost": NaN}', encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "non-standard JSON numeric constant"):
+            with self.assertRaisesRegex(
+                ValueError, "non-standard JSON numeric constant"
+            ):
                 load_json_file(path)
 
     def test_duplicate_json_keys_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "duplicate.json"
             path.write_text('{"action":"edit","action":"deploy"}', encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "duplicate JSON object key: action"):
+            with self.assertRaisesRegex(
+                ValueError, "duplicate JSON object key: action"
+            ):
                 load_json_file(path)
 
     def test_json_decimals_keep_exact_precision(self) -> None:
@@ -626,8 +793,12 @@ class CompletionTests(unittest.TestCase):
         report = load_example("completion.missing.json")
         decision = verify_completion(self.contract, report, now=self.now)
         self.assertFalse(decision.allowed)
-        self.assertTrue(any("missing required_commands" in v for v in decision.violations))
-        self.assertTrue(any("missing required_artifacts" in v for v in decision.violations))
+        self.assertTrue(
+            any("missing required_commands" in v for v in decision.violations)
+        )
+        self.assertTrue(
+            any("missing required_artifacts" in v for v in decision.violations)
+        )
 
     def test_completion_is_bound_to_subject_claim_and_fence(self) -> None:
         self.report["subject_id"] = "different-agent"
@@ -635,8 +806,12 @@ class CompletionTests(unittest.TestCase):
         self.report["fencing_generation"] = 2
         decision = verify_completion(self.contract, self.report, now=self.now)
         self.assertFalse(decision.allowed)
-        self.assertIn("subject_id does not match the active contract", decision.violations)
-        self.assertIn("claim_id does not match the active contract", decision.violations)
+        self.assertIn(
+            "subject_id does not match the active contract", decision.violations
+        )
+        self.assertIn(
+            "claim_id does not match the active contract", decision.violations
+        )
         self.assertIn(
             "fencing_generation does not match the active contract",
             decision.violations,

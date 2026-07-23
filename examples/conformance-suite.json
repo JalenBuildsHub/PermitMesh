@@ -1,5 +1,5 @@
 {
-  "suite_version": "0.1",
+  "suite_version": "0.2",
   "name": "PermitMesh reference conformance suite",
   "cases": [
     {
@@ -197,6 +197,23 @@
         "missing required_commands",
         "missing required_artifacts"
       ]
+    },
+    {
+      "id": "allow-bound-high-risk-operation-with-unused-nonce",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.deploy-bound.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "consumed_nonces": [],
+      "expected_outcome": "allow"
+    },
+    {
+      "id": "deny-replayed-high-risk-operation-nonce",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.deploy-bound.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "consumed_nonces": ["permitmesh-demo-deploy-001"],
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["already been consumed"]
     }
   ]
 }

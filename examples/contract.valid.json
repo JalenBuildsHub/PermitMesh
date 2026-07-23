@@ -1,5 +1,5 @@
 {
-  "contract_version": "0.1",
+  "contract_version": "0.2",
   "issuer": {
     "id": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
     "display_name": "Jalen Studio"
@@ -34,6 +34,28 @@
       "actions": ["deploy"],
       "min_approvals": 1,
       "approvers": ["79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"]
+    }
+  ],
+  "operation_constraints": [
+    {
+      "action": "shell",
+      "operation_digest": "56351727663d75965c4f7c1420f0f336522a4f549e5e372e4211c9bd2556cc3b",
+      "nonce": "permitmesh-demo-shell-001"
+    },
+    {
+      "action": "test",
+      "operation_digest": "849e3ca7eb5b7eb7a0a671069b9f514e2dba9dfc8c3721403516f75efb9017bd",
+      "nonce": "permitmesh-demo-test-001"
+    },
+    {
+      "action": "deploy",
+      "operation_digest": "bcfde2009fd7bfbe3122f253b298cf689057fdca828bd807c3373619c33f7bf1",
+      "nonce": "permitmesh-demo-deploy-001"
+    },
+    {
+      "action": "commit",
+      "operation_digest": "928cf2aeca5e74a0d06ee2336854b8dd3c1fee184eea2ca183087d3944e66415",
+      "nonce": "permitmesh-demo-commit-001"
     }
   ],
   "lifecycle": {

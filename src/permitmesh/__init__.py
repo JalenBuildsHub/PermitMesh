@@ -2,8 +2,10 @@
 
 from .policy import (
     Decision,
+    IMPLEMENTATION_VERSION,
     authorize,
     contract_digest,
+    operation_digest,
     validate_contract,
     verify_completion,
 )
@@ -13,8 +15,9 @@ __all__ = [
     "Decision",
     "authorize",
     "contract_digest",
+    "operation_digest",
     "run_conformance",
     "validate_contract",
     "verify_completion",
 ]
-__version__ = "0.1.1"
+__version__ = IMPLEMENTATION_VERSION

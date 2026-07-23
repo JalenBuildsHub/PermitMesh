@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://permitmesh.dev/schema/permitmesh-conformance-receipt-0.1.json",
-  "title": "PermitMesh Conformance Receipt 0.1",
+  "$id": "https://raw.githubusercontent.com/JalenBuildsHub/PermitMesh/v0.2.0/schema/permitmesh-conformance-receipt.schema.json",
+  "title": "PermitMesh Conformance Receipt 0.2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
     "cases"
   ],
   "properties": {
-    "receipt_version": {"const": "0.1"},
+    "receipt_version": {"const": "0.2"},
     "implementation": {
       "type": "object",
       "additionalProperties": false,
@@ -30,7 +30,7 @@
       "required": ["name", "version", "digest"],
       "properties": {
         "name": {"type": "string", "minLength": 1},
-        "version": {"const": "0.1"},
+        "version": {"const": "0.2"},
         "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       }
     },

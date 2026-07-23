@@ -48,7 +48,9 @@ def build_parser() -> argparse.ArgumentParser:
     validate_parser = subparsers.add_parser("validate", help="Validate one contract.")
     validate_parser.add_argument("contract")
 
-    digest_parser = subparsers.add_parser("digest", help="Print the canonical contract digest.")
+    digest_parser = subparsers.add_parser(
+        "digest", help="Print the canonical contract digest."
+    )
     digest_parser.add_argument("contract")
 
     authorize_parser = subparsers.add_parser(
