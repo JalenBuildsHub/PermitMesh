@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "permitmesh"
+version = "0.1.0"
+description = "Portable, deterministic capability contracts for AI agents in shared workspaces."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Jalen Studio" }]
+keywords = ["ai-agents", "authorization", "nostr", "buzz", "policy"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Security",
+]
+dependencies = []
+
+[project.scripts]
+permitmesh = "permitmesh.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,58 @@
+{
+  "artifact_version": "0.1",
+  "validated_at": "2026-07-23T00:57:30-07:00",
+  "environment": {
+    "os": "Windows",
+    "python": "3.11 and 3.13",
+    "installation": "fresh Python 3.13 virtual environment install plus direct Python 3.11 compatibility run"
+  },
+  "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
+  "checks": [
+    {
+      "name": "unit_tests",
+      "command": "python -m unittest discover -s tests -v",
+      "result": "pass",
+      "count": 18
+    },
+    {
+      "name": "compile",
+      "command": "python -m compileall -q src tests",
+      "result": "pass"
+    },
+    {
+      "name": "contract_schema",
+      "command": "Draft202012Validator plus format checker",
+      "result": "pass"
+    },
+    {
+      "name": "north_star_schema",
+      "command": "Studio North Star schema Draft202012Validator plus format checker",
+      "result": "pass"
+    },
+    {
+      "name": "allowed_fixture",
+      "command": "permitmesh authorize examples/contract.valid.json examples/request.allowed.json --evaluation-time 2026-07-23T12:00:00Z",
+      "result": "allowed",
+      "violations": []
+    },
+    {
+      "name": "denied_fixture",
+      "command": "permitmesh authorize examples/contract.valid.json examples/request.denied.json --evaluation-time 2026-07-23T12:00:00Z",
+      "result": "denied",
+      "violation_count": 8
+    },
+    {
+      "name": "nostr_event_template",
+      "command": "permitmesh to-event examples/contract.valid.json --created-at 1784800000",
+      "result": "pass",
+      "signature_state": "explicitly_unsigned_envelope"
+    }
+  ],
+  "known_limits": [
+    "No cryptographic signature verification",
+    "No tool sandbox or runtime enforcement",
+    "No revocation distribution",
+    "No persistent cumulative budget ledger",
+    "No live Buzz relay integration"
+  ]
+}

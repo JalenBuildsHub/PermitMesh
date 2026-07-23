@@ -1,0 +1,13 @@
+{
+  "action": "deploy",
+  "repository": "permitmesh",
+  "ref": "main",
+  "path": ".env",
+  "files_changed": 24,
+  "commands_used": 120,
+  "cost_usd": 40,
+  "claim_id": "stale-claim",
+  "fencing_generation": 2,
+  "approvals": [],
+  "at": "2026-07-23T12:00:00Z"
+}

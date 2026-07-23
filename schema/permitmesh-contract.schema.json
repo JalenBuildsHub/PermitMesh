@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://permitmesh.dev/schema/permitmesh-contract-0.1.json",
+  "title": "PermitMesh Capability Contract 0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "issuer",
+    "subject",
+    "scope",
+    "capabilities",
+    "validity",
+    "limits",
+    "approval_gates",
+    "lifecycle",
+    "validation"
+  ],
+  "properties": {
+    "contract_version": {"const": "0.1"},
+    "issuer": {"$ref": "#/$defs/principal"},
+    "subject": {"$ref": "#/$defs/principal"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositories", "channels"],
+      "properties": {
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "refs", "allow_paths", "deny_paths"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "refs": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "string", "minLength": 1}
+              },
+              "allow_paths": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "string", "minLength": 1}
+              },
+              "deny_paths": {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        },
+        "channels": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["read", "edit", "shell", "test", "commit", "review", "deploy", "publish", "spend"]
+      }
+    },
+    "validity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["not_before", "expires_at"],
+      "properties": {
+        "not_before": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_files_changed", "max_commands", "max_cost_usd"],
+      "properties": {
+        "max_files_changed": {"type": "integer", "minimum": 0},
+        "max_commands": {"type": "integer", "minimum": 0},
+        "max_cost_usd": {"type": "number", "minimum": 0}
+      }
+    },
+    "approval_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actions", "min_approvals", "approvers"],
+        "properties": {
+          "actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "enum": ["read", "edit", "shell", "test", "commit", "review", "deploy", "publish", "spend"]
+            }
+          },
+          "min_approvals": {"type": "integer", "minimum": 1},
+          "approvers": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "fencing_generation"],
+      "properties": {
+        "claim_id": {"type": "string", "minLength": 1},
+        "fencing_generation": {"type": "integer", "minimum": 1}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_commands", "required_artifacts"],
+      "properties": {
+        "required_commands": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "required_artifacts": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "description": "Optional transport-independent signature metadata. Verification is adapter-specific.",
+      "additionalProperties": false,
+      "required": ["algorithm", "public_key", "value"],
+      "properties": {
+        "algorithm": {"type": "string", "minLength": 1},
+        "public_key": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "principal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "display_name": {"type": "string"}
+      }
+    }
+  }
+}

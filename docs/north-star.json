@@ -1,0 +1,207 @@
+{
+  "charter_version": "0.1",
+  "as_of": "2026-07-23",
+  "assessment_kind": "charter",
+  "project_id": "permitmesh",
+  "project_name": "PermitMesh",
+  "project_type": "open_source",
+  "lifecycle_state": "idea",
+  "lifecycle_detail": "Local proof implemented; public release and external validation pending.",
+  "evidence_status": "draft",
+  "rubric_applicability": "applicable",
+  "north_star": "Help open-source maintainers safely delegate real work to agents by making authority narrow, portable, inspectable, and provable at every action boundary.",
+  "emotional_promise": "Confidence without constant supervision.",
+  "beneficiary": {
+    "primary": "Open-source maintainers allowing AI agents to work in shared code-and-conversation workspaces.",
+    "job_to_be_done": "Delegate useful work without granting vague ambient authority.",
+    "current_struggle": "Identity and audit records show who acted but do not necessarily encode or enforce the exact task boundary.",
+    "desired_progress": "Express one permit once, enforce it consistently, and retain an inspectable decision receipt."
+  },
+  "evidence": [
+    {
+      "claim": "Buzz gives humans and agents independently keyed identities in one signed-event workspace.",
+      "class": "fact",
+      "source": "https://github.com/block/buzz/blob/main/VISION.md",
+      "as_of": "2026-07-23",
+      "verification": "live_verified",
+      "fresh_until": "2026-08-06"
+    },
+    {
+      "claim": "Buzz draft NIP-OA does not enforce wall-clock expiry and requires independent freshness controls.",
+      "class": "fact",
+      "source": "https://github.com/block/buzz/blob/main/docs/nips/NIP-OA.md",
+      "as_of": "2026-07-23",
+      "verification": "live_verified",
+      "fresh_until": "2026-08-06"
+    },
+    {
+      "claim": "Portable task-level capability contracts will improve trusted agent adoption.",
+      "class": "inference",
+      "source": null,
+      "as_of": "2026-07-23",
+      "verification": "unverified",
+      "fresh_until": null
+    }
+  ],
+  "north_star_metric": {
+    "name": "Verified external authorization runs",
+    "definition": "A run by someone outside Jalen Studio that evaluates at least one intentionally allowed and one intentionally denied action against a real workflow and retains the receipts.",
+    "formula": "Count qualifying runs and unique external teams over rolling 30 days.",
+    "qualifying_event": "An external maintainer supplies a reproducible contract/request pair or public receipt and confirms the decisions matched intended scope.",
+    "exclusions": [
+      "Internal demos",
+      "Synthetic CI-only repeats",
+      "Stars and page views",
+      "Duplicate unchanged runs by the same team"
+    ],
+    "observable": false,
+    "data_source_status": "planned",
+    "data_source": "Public conformance receipt directory or issue template",
+    "baseline": 0,
+    "target": "5 runs across at least 2 external teams by 2026-08-22",
+    "cadence": "Weekly",
+    "guardrails": [
+      "Zero known false allows",
+      "No secrets in receipts",
+      "No claim of Buzz endorsement",
+      "Median setup under 10 minutes"
+    ],
+    "gameability": "Friendly users could repeat trivial fixtures or count examples with no enforcement relevance.",
+    "worked_example": "A maintainer runs one allowed edit and one denied production deploy through their agent proxy, publishes redacted receipts, and confirms both matched intent.",
+    "proxies": [
+      {
+        "name": "External maintainer interviews",
+        "why": "Tests whether the problem is real before integration work.",
+        "retire_when": "Three maintainers have run the CLI."
+      },
+      {
+        "name": "Independent clean installs",
+        "why": "Detects packaging and documentation friction.",
+        "retire_when": "Public conformance receipts exist."
+      }
+    ]
+  },
+  "end_state": {
+    "three_year": "A trusted interoperability layer supported by several agent runtimes and workspace systems.",
+    "five_year": "Permits, revocations, receipts, and reputation move with agents across self-hosted workspaces.",
+    "ten_year": "Narrow machine-verifiable authority is a default primitive for human-agent institutions."
+  },
+  "value_loop": [
+    "Maintainer expresses a narrow readable permit.",
+    "Agent runtime evaluates each protected action.",
+    "Allowed work proceeds and denied work returns actionable reasons.",
+    "Signed workspace events retain decision context.",
+    "Real failures improve the common schema and fixtures."
+  ],
+  "moat": [
+    "Transport-neutral deterministic conformance behavior.",
+    "Public corpus of real redacted edge cases.",
+    "Trust earned through explicit limits and upstream compatibility."
+  ],
+  "trust_invariants": [
+    "Invalid input fails closed.",
+    "Deny rules override allow rules.",
+    "Unsigned events are never labeled signed.",
+    "Policy decisions are not represented as sandbox enforcement."
+  ],
+  "principles": [
+    "Authorization is work-shaped, not role-shaped.",
+    "Identity, permission, enforcement, and audit are separate layers.",
+    "Portability matters more than owning the runtime.",
+    "Evidence outranks attention."
+  ],
+  "anti_goals": [
+    "Do not build another chat UI or Buzz fork.",
+    "Do not market JSON validation as sandboxing.",
+    "Do not make stars the success metric.",
+    "Do not imply endorsement by Block or Buzz.",
+    "Do not handle transactions in the first campaign."
+  ],
+  "economics_or_sustainability": "Open protocol and core, with possible future paid enforcement or compliance services only after adoption proof.",
+  "distribution_or_adoption_wedge": "A runnable answer to Buzz's stated agent-scoping problem, shown through an allowed-versus-denied decision receipt.",
+  "governing_rulings": [],
+  "risks": [
+    {
+      "risk": "Policy appears secure without enforcement.",
+      "probability": "high",
+      "control": "Keep policy decision and enforcement points explicit; gate production claims on an adapter.",
+      "evidence_that_changes_call": "Independent end-to-end enforcement test."
+    },
+    {
+      "risk": "Maintainers prefer runtime-specific policy.",
+      "probability": "medium",
+      "control": "Interview and onboard before expanding the schema.",
+      "evidence_that_changes_call": "Three maintainers report no value in portable receipts."
+    }
+  ],
+  "roadmap": [
+    {
+      "phase": "Phase 0 - local proof",
+      "entry_evidence": ["Buzz identity and scoping gap documented."],
+      "done_when": ["Schema, evaluator, event template, threat model, demo, and tests pass from a clean checkout."],
+      "non_goals": ["Relay integration", "Signature verification", "Public launch"],
+      "validation": ["Unit tests", "CLI allowed and denied demos", "Schema validation"],
+      "disproof_condition": "Meaningful work boundaries cannot be expressed without runtime-specific policy."
+    },
+    {
+      "phase": "Phase 1 - public problem test",
+      "entry_evidence": ["Local proof passes", "Jalen approves publication"],
+      "done_when": ["Three external maintainers run the demo", "One upstream design conversation produces substantive feedback"],
+      "non_goals": ["Production security claims", "Paid hosting"],
+      "validation": ["Clean external install", "Redacted decision receipts"],
+      "disproof_condition": "Maintainers consistently see no value beyond existing runtime policy."
+    }
+  ],
+  "next_exact_campaign": {
+    "completion_type": "campaign",
+    "owner": "Jalen Studio, one PermitMesh writer",
+    "scope": [
+      "Package the local proof",
+      "Publish only after Jalen approval",
+      "Recruit three maintainers",
+      "Open one respectful Buzz design discussion"
+    ],
+    "non_goals": ["Production enforcement", "Paid hosting", "Buzz fork"],
+    "validation_floor": [
+      "Clean-install CLI demo",
+      "All tests passing",
+      "Schema validation",
+      "Explicit unsigned-event behavior"
+    ],
+    "stop_conditions": [
+      "Upstream asks us to stop",
+      "Material name conflict",
+      "Three maintainers find no portable-policy need",
+      "Any known false allow remains unresolved"
+    ]
+  },
+  "review": {
+    "quality_score": 76,
+    "review_status": "unreviewed",
+    "reviewed_by": ["Codex"],
+    "models_used": ["GPT-5.6 Sol"],
+    "rubric_scores": {
+      "truth_and_evidence": 4,
+      "beneficiary_and_progress": 4,
+      "future_end_state": 4,
+      "north_star_metric": 4,
+      "value_loop": 4,
+      "moat_and_trust": 3,
+      "focus_and_anti_goals": 5,
+      "economics_and_distribution": 3,
+      "roadmap_and_gates": 4,
+      "agent_executability": 4
+    },
+    "disagreements": ["External problem validation and provider-diverse review are still pending."],
+    "final_ruling": null,
+    "ruling_owner": null,
+    "next_review": "2026-08-06"
+  },
+  "change_log": [
+    {
+      "date": "2026-07-23",
+      "change": "Initial hypothesis and local proof campaign.",
+      "owner": "Codex for Jalen Studio"
+    }
+  ]
+}
