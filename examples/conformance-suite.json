@@ -132,6 +132,53 @@
       "expected_outcome": "malformed"
     },
     {
+      "id": "deny-object-action",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.object-action.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["known capability string"]
+    },
+    {
+      "id": "deny-root-pattern-nested-basename",
+      "contract": "conformance/contract.root-readme.json",
+      "request": "conformance/request.nested-readme.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["outside allowed paths"]
+    },
+    {
+      "id": "deny-single-segment-ref-descendant",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.nested-ref.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["outside scope"]
+    },
+    {
+      "id": "deny-exact-decimal-overage",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.precise-overage.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["exceeds max_cost_usd"]
+    },
+    {
+      "id": "deny-dot-segment-path",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.dot-segment.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["safe relative path"]
+    },
+    {
+      "id": "reject-duplicate-json-key",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.duplicate-action.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "malformed"
+    },
+    {
       "id": "allow-complete-required-evidence",
       "operation": "verify_completion",
       "contract": "contract.valid.json",

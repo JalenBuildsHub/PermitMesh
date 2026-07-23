@@ -25,7 +25,7 @@ try {
 
     Push-Location $clonePath
     $pushed = $true
-    & $venvPython -m pip install --quiet --disable-pip-version-check .
+    & $venvPython -m pip install --quiet --disable-pip-version-check ".[test]"
     if ($LASTEXITCODE -ne 0) { throw "package install failed" }
     & $venvPython -m unittest discover -s tests -v
     if ($LASTEXITCODE -ne 0) { throw "test suite failed" }
@@ -46,7 +46,7 @@ try {
         elapsed_seconds = $elapsed
         threshold_seconds = 600
         tests = "pass"
-        conformance = "18/18"
+        conformance = "24/24"
         enforcement_boundary = "policy-decision-only; no tool execution"
     }
     New-Item -ItemType Directory -Force -Path (Split-Path $receiptPath) | Out-Null

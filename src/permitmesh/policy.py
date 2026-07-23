@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from decimal import Decimal
 from fnmatch import fnmatchcase
 import hashlib
 import json
 import math
-from pathlib import PurePosixPath
 import re
 from typing import Any
 
@@ -37,6 +37,9 @@ TOP_LEVEL_FIELDS = {
     "validation",
     "signature",
 }
+RFC3339_PATTERN = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
+)
 
 
 @dataclass(frozen=True)
@@ -51,7 +54,62 @@ class Decision:
 
 
 def canonical_json(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    if value is None:
+        return "null"
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise ValueError("canonical JSON numbers must be finite")
+        if value.is_zero():
+            return "0"
+        sign, raw_digits, exponent = value.as_tuple()
+        if not isinstance(exponent, int):
+            raise ValueError("canonical JSON numbers must be finite")
+        digits = "".join(str(digit) for digit in raw_digits)
+        while len(digits) > 1 and digits.endswith("0"):
+            digits = digits[:-1]
+            exponent += 1
+        adjusted_exponent = len(digits) + exponent - 1
+        if -6 <= adjusted_exponent < 21:
+            point = len(digits) + exponent
+            if point <= 0:
+                number = "0." + ("0" * -point) + digits
+            elif point >= len(digits):
+                number = digits + ("0" * (point - len(digits)))
+            else:
+                number = digits[:point] + "." + digits[point:]
+        else:
+            mantissa = digits[0]
+            if len(digits) > 1:
+                mantissa += "." + digits[1:]
+            exponent_sign = "+" if adjusted_exponent >= 0 else ""
+            number = f"{mantissa}e{exponent_sign}{adjusted_exponent}"
+        return ("-" if sign else "") + number
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError("canonical JSON numbers must be finite")
+        return canonical_json(Decimal(str(value)))
+    if isinstance(value, (list, tuple)):
+        return "[" + ",".join(canonical_json(item) for item in value) + "]"
+    if isinstance(value, dict):
+        if not all(isinstance(key, str) for key in value):
+            raise TypeError("canonical JSON object keys must be strings")
+        return (
+            "{"
+            + ",".join(
+                f"{canonical_json(key)}:{canonical_json(value[key])}"
+                for key in sorted(value)
+            )
+            + "}"
+        )
+    raise TypeError(f"unsupported canonical JSON value: {type(value).__name__}")
 
 
 def contract_digest(contract: Any) -> str:
@@ -63,7 +121,7 @@ def contract_digest(contract: Any) -> str:
 
 
 def _parse_time(value: Any, field: str, violations: list[str]) -> datetime | None:
-    if not isinstance(value, str):
+    if not isinstance(value, str) or RFC3339_PATTERN.fullmatch(value) is None:
         violations.append(f"{field} must be an RFC 3339 timestamp")
         return None
     try:
@@ -79,13 +137,13 @@ def _parse_time(value: Any, field: str, violations: list[str]) -> datetime | Non
 
 def _is_safe_relative_path(value: str) -> bool:
     normalized = value.replace("\\", "/")
-    path = PurePosixPath(normalized)
+    parts = normalized.split("/")
     return (
         bool(value)
         and "\x00" not in value
         and re.match(r"^[A-Za-z]:", normalized) is None
-        and not path.is_absolute()
-        and ".." not in path.parts
+        and not normalized.startswith("/")
+        and all(part not in {"", ".", ".."} for part in parts)
     )
 
 
@@ -93,11 +151,16 @@ def _validate_patterns(
     patterns: Any, field: str, violations: list[str], *, allow_empty: bool = False
 ) -> None:
     if not isinstance(patterns, list) or (not patterns and not allow_empty):
-        violations.append(f"{field} must be a non-empty array")
+        requirement = "an array" if allow_empty else "a non-empty array"
+        violations.append(f"{field} must be {requirement}")
         return
     for index, pattern in enumerate(patterns):
         if not isinstance(pattern, str) or not _is_safe_relative_path(pattern):
             violations.append(f"{field}[{index}] must be a safe relative path pattern")
+    if all(isinstance(pattern, str) for pattern in patterns) and len(patterns) != len(
+        set(patterns)
+    ):
+        violations.append(f"{field} must not contain duplicates")
 
 
 def _reject_unknown_fields(
@@ -141,6 +204,8 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
             violations.append(f"{field}.id must be a non-empty string")
         elif isinstance(value, dict):
             _reject_unknown_fields(value, {"id", "display_name"}, field, violations)
+            if "display_name" in value and not isinstance(value["display_name"], str):
+                violations.append(f"{field}.display_name must be a string")
 
     capabilities = contract["capabilities"]
     if not isinstance(capabilities, list) or not capabilities:
@@ -188,13 +253,13 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
                     violations.append(f"{prefix}.refs must not contain duplicates")
                 _validate_patterns(repo.get("allow_paths"), f"{prefix}.allow_paths", violations)
                 _validate_patterns(
-                    repo.get("deny_paths", []),
+                    repo.get("deny_paths"),
                     f"{prefix}.deny_paths",
                     violations,
                     allow_empty=True,
                 )
 
-        channels = scope.get("channels", [])
+        channels = scope.get("channels")
         if not isinstance(channels, list) or not all(
             isinstance(channel, str) and channel for channel in channels
         ):
@@ -229,12 +294,7 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
                 violations.append(f"limits.{field} must be a non-negative integer")
         cost = limits.get("max_cost_usd")
-        if (
-            not isinstance(cost, (int, float))
-            or isinstance(cost, bool)
-            or not math.isfinite(cost)
-            or cost < 0
-        ):
+        if not _is_finite_nonnegative_number(cost):
             violations.append("limits.max_cost_usd must be a finite non-negative number")
 
     gates = contract["approval_gates"]
@@ -318,13 +378,55 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
     return tuple(violations)
 
 
-def _matches_path(path: str, pattern: str) -> bool:
-    normalized_path = path.replace("\\", "/")
-    normalized_pattern = pattern.replace("\\", "/")
-    if normalized_pattern.endswith("/**"):
-        root = normalized_pattern[:-3].rstrip("/")
-        return normalized_path == root or normalized_path.startswith(f"{root}/")
-    return PurePosixPath(normalized_path).match(normalized_pattern)
+def _is_finite_nonnegative_number(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
+        return False
+    if isinstance(value, Decimal):
+        return value.is_finite() and value >= 0
+    return math.isfinite(value) and value >= 0
+
+
+def _as_decimal(value: int | float | Decimal) -> Decimal:
+    return value if isinstance(value, Decimal) else Decimal(str(value))
+
+
+def _matches_glob(value: str, pattern: str) -> bool:
+    value_parts = tuple(value.replace("\\", "/").split("/"))
+    pattern_parts = tuple(pattern.replace("\\", "/").split("/"))
+    memo: dict[tuple[int, int], bool] = {}
+
+    def match(value_index: int, pattern_index: int) -> bool:
+        key = (value_index, pattern_index)
+        if key in memo:
+            return memo[key]
+        if pattern_index == len(pattern_parts):
+            result = value_index == len(value_parts)
+        elif pattern_parts[pattern_index] == "**":
+            result = match(value_index, pattern_index + 1) or (
+                value_index < len(value_parts)
+                and match(value_index + 1, pattern_index)
+            )
+        else:
+            result = (
+                value_index < len(value_parts)
+                and fnmatchcase(value_parts[value_index], pattern_parts[pattern_index])
+                and match(value_index + 1, pattern_index + 1)
+            )
+        memo[key] = result
+        return result
+
+    return match(0, 0)
+
+
+def _trusted_now(
+    now: datetime | None, violations: list[str]
+) -> datetime | None:
+    if now is None:
+        return datetime.now(timezone.utc)
+    if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
+        violations.append("evaluator time must include a timezone")
+        return None
+    return now.astimezone(timezone.utc)
 
 
 def authorize(
@@ -362,15 +464,14 @@ def authorize(
 
     # The evaluator's clock is authoritative. A request's self-declared time is
     # parsed for receipt quality but can never extend or revive authorization.
-    effective_now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-    requested_at = request.get("at")
-    if requested_at is not None:
-        _parse_time(requested_at, "request.at", violations)
+    effective_now = _trusted_now(now, violations)
+    if "at" in request:
+        _parse_time(request["at"], "request.at", violations)
     not_before = _parse_time(contract["validity"]["not_before"], "validity.not_before", violations)
     expires_at = _parse_time(contract["validity"]["expires_at"], "validity.expires_at", violations)
-    if not_before and effective_now < not_before:
+    if not_before and effective_now is not None and effective_now < not_before:
         violations.append("contract is not active yet")
-    if expires_at and effective_now >= expires_at:
+    if expires_at and effective_now is not None and effective_now >= expires_at:
         violations.append("contract has expired")
     checks.append("validity_window")
 
@@ -380,14 +481,20 @@ def authorize(
 
     configured_channels = contract["scope"]["channels"]
     requested_channel = request.get("channel")
+    if "channel" in request and (
+        not isinstance(requested_channel, str) or not requested_channel
+    ):
+        violations.append("request.channel must be a non-empty string")
     if configured_channels and requested_channel not in configured_channels:
         violations.append(f"channel {requested_channel!r} is outside scope")
     checks.append("channel")
 
     action = request.get("action")
-    if action not in contract["capabilities"]:
+    if not isinstance(action, str):
+        violations.append("request.action must be a known capability string")
+    elif action not in contract["capabilities"]:
         violations.append(f"capability {action!r} is not granted")
-    if action in PATH_REQUIRED_CAPABILITIES and request.get("path") is None:
+    if isinstance(action, str) and action in PATH_REQUIRED_CAPABILITIES and request.get("path") is None:
         violations.append(f"request.path is required for {action}")
     checks.append("capability")
 
@@ -405,21 +512,21 @@ def authorize(
     else:
         requested_ref = request.get("ref")
         if not isinstance(requested_ref, str) or not any(
-            fnmatchcase(requested_ref, pattern) for pattern in repository["refs"]
+            _matches_glob(requested_ref, pattern) for pattern in repository["refs"]
         ):
             violations.append(f"ref {requested_ref!r} is outside scope")
 
-        requested_path = request.get("path")
-        if requested_path is not None:
+        if "path" in request:
+            requested_path = request["path"]
             if not isinstance(requested_path, str) or not _is_safe_relative_path(requested_path):
                 violations.append("request.path must be a safe relative path")
             else:
                 denied = any(
-                    _matches_path(requested_path, pattern)
+                    _matches_glob(requested_path, pattern)
                     for pattern in repository.get("deny_paths", [])
                 )
                 allowed = any(
-                    _matches_path(requested_path, pattern)
+                    _matches_glob(requested_path, pattern)
                     for pattern in repository["allow_paths"]
                 )
                 if denied:
@@ -430,22 +537,31 @@ def authorize(
 
     limits = contract["limits"]
     request_limits = {
-        "files_changed": ("max_files_changed", int),
-        "commands_used": ("max_commands", int),
-        "cost_usd": ("max_cost_usd", (int, float)),
+        "files_changed": "max_files_changed",
+        "commands_used": "max_commands",
+        "cost_usd": "max_cost_usd",
     }
-    for request_field, (limit_field, expected_type) in request_limits.items():
+    for request_field, limit_field in request_limits.items():
         value = request.get(request_field, 0)
-        if (
-            not isinstance(value, expected_type)
-            or isinstance(value, bool)
-            or (isinstance(value, float) and not math.isfinite(value))
-            or value < 0
-        ):
+        if request_field == "cost_usd":
+            valid_number = _is_finite_nonnegative_number(value)
+        else:
+            valid_number = (
+                isinstance(value, int)
+                and not isinstance(value, bool)
+                and value >= 0
+            )
+        if not valid_number:
             violations.append(
                 f"request.{request_field} must be a finite non-negative number"
             )
-        elif value > limits[limit_field]:
+        elif request_field == "cost_usd" and _as_decimal(value) > _as_decimal(
+            limits[limit_field]
+        ):
+            violations.append(
+                f"request.{request_field}={value} exceeds {limit_field}={limits[limit_field]}"
+            )
+        elif request_field != "cost_usd" and value > limits[limit_field]:
             violations.append(
                 f"request.{request_field}={value} exceeds {limit_field}={limits[limit_field]}"
             )
@@ -506,12 +622,12 @@ def verify_completion(
     for field in sorted(report_fields - report.keys()):
         violations.append(f"missing required completion field: {field}")
 
-    effective_now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    effective_now = _trusted_now(now, violations)
     not_before = _parse_time(contract["validity"]["not_before"], "validity.not_before", violations)
     expires_at = _parse_time(contract["validity"]["expires_at"], "validity.expires_at", violations)
-    if not_before and effective_now < not_before:
+    if not_before and effective_now is not None and effective_now < not_before:
         violations.append("contract is not active yet")
-    if expires_at and effective_now >= expires_at:
+    if expires_at and effective_now is not None and effective_now >= expires_at:
         violations.append("contract has expired")
     checks.append("validity_window")
 
@@ -565,12 +681,22 @@ def to_nostr_event_template(
                 f"{principal}.id must be a 64-character lowercase hex Nostr public key"
             )
     digest = contract_digest(contract)
+    if created_at is None:
+        event_created_at = int(datetime.now(timezone.utc).timestamp())
+    elif (
+        not isinstance(created_at, int)
+        or isinstance(created_at, bool)
+        or created_at < 0
+    ):
+        raise ValueError("created_at must be a non-negative integer")
+    else:
+        event_created_at = created_at
     return {
         "status": "unsigned_template",
         "instruction": "Compute the NIP-01 id and signature with the issuer's Nostr key before publishing.",
         "event": {
             "kind": 30078,
-            "created_at": int(created_at or datetime.now(timezone.utc).timestamp()),
+            "created_at": event_created_at,
             "tags": [
                 ["d", f"permitmesh:contract:{digest}"],
                 ["t", "permitmesh"],

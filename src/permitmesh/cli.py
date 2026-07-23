@@ -9,6 +9,7 @@ from typing import Any
 
 from .conformance import load_json_file, run_conformance
 from .policy import (
+    RFC3339_PATTERN,
     authorize,
     contract_digest,
     to_nostr_event_template,
@@ -26,6 +27,8 @@ def _emit(payload: Any) -> None:
 
 
 def _evaluation_time(value: str) -> datetime:
+    if RFC3339_PATTERN.fullmatch(value) is None:
+        raise argparse.ArgumentTypeError("must be an RFC 3339 timestamp")
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
@@ -126,6 +129,9 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if not violations else 2
 
         if args.command == "digest":
+            violations = validate_contract(contract)
+            if violations:
+                raise ValueError("; ".join(violations))
             print(contract_digest(contract))
             return 0
 

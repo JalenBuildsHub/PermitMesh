@@ -57,12 +57,16 @@ detail. The translation must preserve fail-closed behavior.
 ## Path rules
 
 - Paths use forward-slash-separated repository-relative form.
-- Absolute paths and `..` segments are invalid.
+- Absolute paths, empty segments, `.` segments, and `..` segments are invalid.
 - Deny patterns win over allow patterns.
-- A trailing `/**` includes the named directory and all descendants.
-- Other patterns use case-sensitive, path-segment-aware glob matching. For
-  example, `src/*` does not match `src/package/module.py`; use `src/**` for
-  descendants.
+- Patterns are root-anchored and use case-sensitive, path-segment-aware glob
+  matching. `*` matches within one segment and `**` matches zero or more whole
+  segments. For example, `README.md` does not match `docs/README.md`, and
+  `src/*` does not match `src/package/module.py`; use `**/README.md` or
+  `src/**` for those recursive forms.
+
+Repository ref patterns use the same segment rules: `feature/*` matches
+`feature/topic` but not `feature/team/topic`; `feature/**` matches both.
 
 Production adapters must decide whether repository name and path comparison should be case-sensitive on their target filesystem. The decision must be consistent between evaluation and enforcement.
 
@@ -80,7 +84,10 @@ The contract digest is:
 sha256(UTF-8(canonical-json(contract minus signature and contract_digest)))
 ```
 
-Canonical JSON uses sorted object keys, no insignificant whitespace, and UTF-8 characters without ASCII escaping.
+Canonical JSON uses sorted object keys, no insignificant whitespace, normalized
+finite decimal numbers, and UTF-8 characters without ASCII escaping. Strict
+file parsing rejects duplicate object keys and non-standard numeric constants
+before digesting or evaluating a document.
 
 The digest provides stable content identity, not authorship. Signature verification is deliberately outside the 0.1 reference core so integrations cannot accidentally confuse “hash matches” with “authorized issuer signed.”
 

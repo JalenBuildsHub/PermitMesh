@@ -94,17 +94,18 @@ Run the complete reproducible demo:
 .\scripts\demo.ps1
 ```
 
-Run the eighteen-case adversarial conformance suite and save a receipt:
+Run the 24-case adversarial conformance suite and save a receipt:
 
 ```powershell
 permitmesh conformance examples\conformance-suite.json `
   --receipt validation\conformance-local.json
 ```
 
-The suite covers subject and channel mismatch, unknown actions, traversal and
-glob edges, malformed approvals, stale claims and fences, validity boundaries,
-exceeded budgets, unknown fields, non-finite input, and required completion
-evidence.
+The suite covers subject and channel mismatch, unknown and malformed actions,
+root-anchored path and ref glob edges, traversal and non-canonical paths,
+duplicate JSON keys, exact decimal budgets, malformed approvals, stale claims
+and fences, validity boundaries, unknown fields, non-finite input, and required
+completion evidence.
 
 ## How it fits
 
@@ -146,13 +147,19 @@ cross-document and semantic rules JSON Schema cannot express cleanly:
 
 - the validity window is ordered and active;
 - paths and path patterns are relative and traversal-free;
+- path and ref globs are root-anchored; `*` matches one segment and `**`
+  recursively matches segments;
 - deny patterns override allow patterns;
 - repository and ref scope match;
 - consumption stays within declared budgets;
 - the live claim and fencing generation match;
 - approval thresholds are possible and satisfied.
 
-The digest is SHA-256 over canonical JSON with `signature` and `contract_digest` excluded. This digest binds receipts and transport adapters to the effective policy document.
+The strict loader rejects duplicate object keys and non-standard numeric
+constants, and preserves decimal precision for budget comparisons. The digest
+is SHA-256 over canonical JSON with `signature` and `contract_digest` excluded.
+This digest binds receipts and transport adapters to the effective policy
+document. `permitmesh digest` refuses structurally invalid contracts.
 
 ## Buzz/Nostr adapter
 

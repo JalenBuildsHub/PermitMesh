@@ -1,0 +1,47 @@
+{
+  "contract_version": "0.1",
+  "issuer": {
+    "id": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+    "display_name": "Jalen Studio"
+  },
+  "subject": {
+    "id": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+    "display_name": "Build Agent"
+  },
+  "scope": {
+    "repositories": [
+      {
+        "name": "permitmesh",
+        "refs": ["feature/*"],
+        "allow_paths": ["README.md"],
+        "deny_paths": []
+      }
+    ],
+    "channels": ["permitmesh/feature-agent-contract"]
+  },
+  "capabilities": ["read", "edit", "shell", "test", "commit", "deploy"],
+  "validity": {
+    "not_before": "2026-07-23T00:00:00Z",
+    "expires_at": "2026-07-30T00:00:00Z"
+  },
+  "limits": {
+    "max_files_changed": 20,
+    "max_commands": 100,
+    "max_cost_usd": 25
+  },
+  "approval_gates": [
+    {
+      "actions": ["deploy"],
+      "min_approvals": 1,
+      "approvers": ["79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"]
+    }
+  ],
+  "lifecycle": {
+    "claim_id": "claim-permitmesh-demo",
+    "fencing_generation": 3
+  },
+  "validation": {
+    "required_commands": ["python -m unittest discover -s tests -v"],
+    "required_artifacts": ["validation/permitmesh-demo.json"]
+  }
+}

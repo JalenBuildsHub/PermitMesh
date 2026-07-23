@@ -29,14 +29,15 @@ The reference suite includes:
 - the exclusive `expires_at` boundary;
 - a subject that does not match the contract;
 - a channel outside the contract scope;
-- unknown action;
-- parent traversal, a missing read path, Windows drive paths, and a
-  non-recursive glob edge;
+- unknown and non-string actions;
+- parent traversal, dot segments, a missing read path, Windows drive paths,
+  root-anchored path globs, and single-segment path/ref glob edges;
 - malformed approvals;
 - stale claim and stale fencing generation;
 - exceeded file, command, and cost budgets;
 - unknown request fields;
-- a non-standard non-finite JSON number; and
+- a non-standard non-finite JSON number, a duplicate JSON key, and an exact
+  decimal budget overage; and
 - complete and incomplete declared validation evidence.
 
 The final case is intentionally malformed JSON. Strict implementations should

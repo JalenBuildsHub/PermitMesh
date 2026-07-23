@@ -1,24 +1,34 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from decimal import Decimal
 import hashlib
 from importlib.metadata import PackageNotFoundError, version
 import json
 from pathlib import Path
 from typing import Any
 
-from .policy import authorize, canonical_json, verify_completion
+from .policy import RFC3339_PATTERN, authorize, canonical_json, verify_completion
 
 
 SUPPORTED_SUITE_VERSION = "0.1"
 try:
     IMPLEMENTATION_VERSION = version("permitmesh")
 except PackageNotFoundError:
-    IMPLEMENTATION_VERSION = "0.1.0"
+    IMPLEMENTATION_VERSION = "0.1.1"
 
 
 def _reject_nonfinite(value: str) -> None:
     raise ValueError(f"non-standard JSON numeric constant: {value}")
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError(f"duplicate JSON object key: {key}")
+        value[key] = item
+    return value
 
 
 def load_json_file(path: str | Path) -> Any:
@@ -27,6 +37,8 @@ def load_json_file(path: str | Path) -> Any:
         return json.loads(
             source.read_text(encoding="utf-8"),
             parse_constant=_reject_nonfinite,
+            parse_float=Decimal,
+            object_pairs_hook=_reject_duplicate_keys,
         )
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         raise ValueError(f"could not read {str(source)!r}: {exc}") from exc
@@ -56,7 +68,10 @@ def _outcome_for(case: dict[str, Any], suite_dir: Path) -> tuple[str, dict[str, 
             detail = str(exc).split(": ", 1)[-1]
             raise ValueError(f"request fixture malformed: {detail}") from exc
         evaluation_time = case.get("evaluation_time")
-        if not isinstance(evaluation_time, str):
+        if (
+            not isinstance(evaluation_time, str)
+            or RFC3339_PATTERN.fullmatch(evaluation_time) is None
+        ):
             raise ValueError("evaluation_time must be an RFC 3339 string")
         try:
             now = datetime.fromisoformat(evaluation_time.replace("Z", "+00:00"))
