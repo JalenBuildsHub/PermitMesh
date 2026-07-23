@@ -21,6 +21,7 @@ jobs:
       - run: python -m pip install --no-deps .
       - run: python -m unittest discover -s tests -v
       - run: python -m compileall -q src tests
+      - run: permitmesh conformance examples/conformance-suite.json
       - name: Validate allowed fixture
         run: permitmesh authorize examples/contract.valid.json examples/request.allowed.json --evaluation-time 2026-07-23T12:00:00Z
       - name: Verify denied fixture

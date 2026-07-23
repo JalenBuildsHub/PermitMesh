@@ -8,8 +8,7 @@
   "files_changed": 4,
   "commands_used": 12,
   "cost_usd": 1.75,
-  "claim_id": "claim-permitmesh-demo",
+  "claim_id": "stale-claim",
   "fencing_generation": 3,
-  "approvals": [],
-  "at": "2026-07-23T12:00:00Z"
+  "approvals": []
 }

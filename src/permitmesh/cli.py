@@ -7,14 +7,18 @@ from pathlib import Path
 import sys
 from typing import Any
 
-from .policy import authorize, contract_digest, to_nostr_event_template, validate_contract
+from .conformance import load_json_file, run_conformance
+from .policy import (
+    authorize,
+    contract_digest,
+    to_nostr_event_template,
+    validate_contract,
+    verify_completion,
+)
 
 
 def _load_json(path: str) -> Any:
-    try:
-        return json.loads(Path(path).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"could not read {path!r}: {exc}") from exc
+    return load_json_file(path)
 
 
 def _emit(payload: Any) -> None:
@@ -55,11 +59,37 @@ def build_parser() -> argparse.ArgumentParser:
         help="Trusted evaluator time override for deterministic tests and replay.",
     )
 
+    completion_parser = subparsers.add_parser(
+        "verify-completion",
+        help="Check declared completion evidence against a contract.",
+    )
+    completion_parser.add_argument("contract")
+    completion_parser.add_argument("report")
+    completion_parser.add_argument(
+        "--evaluation-time",
+        type=_evaluation_time,
+        help="Trusted evaluator time override for deterministic tests and replay.",
+    )
+
     event_parser = subparsers.add_parser(
         "to-event", help="Create an unsigned Nostr application-data event template."
     )
     event_parser.add_argument("contract")
     event_parser.add_argument("--created-at", type=int)
+
+    conformance_parser = subparsers.add_parser(
+        "conformance", help="Run a portable conformance suite and emit a receipt."
+    )
+    conformance_parser.add_argument("suite")
+    conformance_parser.add_argument(
+        "--receipt",
+        help="Optional path for a JSON receipt. The receipt is always printed.",
+    )
+    conformance_parser.add_argument(
+        "--enforcement-boundary",
+        default="policy-decision-only; no tool execution",
+        help="Truthful description of what the runner actually enforced.",
+    )
 
     return parser
 
@@ -67,6 +97,19 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
+        if args.command == "conformance":
+            receipt = run_conformance(
+                args.suite,
+                enforcement_boundary=args.enforcement_boundary,
+            )
+            if args.receipt:
+                Path(args.receipt).write_text(
+                    json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+            _emit(receipt)
+            return 0 if receipt["summary"]["failed"] == 0 else 4
+
         contract = _load_json(args.contract)
         if not isinstance(contract, dict):
             raise ValueError("contract must be a JSON object")
@@ -89,6 +132,16 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "authorize":
             request = _load_json(args.request)
             decision = authorize(contract, request, now=args.evaluation_time)
+            _emit(decision.to_dict())
+            return 0 if decision.allowed else 3
+
+        if args.command == "verify-completion":
+            report = _load_json(args.report)
+            decision = verify_completion(
+                contract,
+                report,
+                now=args.evaluation_time,
+            )
             _emit(decision.to_dict())
             return 0 if decision.allowed else 3
 

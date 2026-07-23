@@ -8,7 +8,7 @@
 - As of: 2026-07-23
 - Project type: open_source
 - Owner: Jalen Studio
-- Reviewed: self-review only; independent review pending
+- Reviewed: four-provider publication council completed; charter remains unadopted
 - Next review: after three external maintainer interviews or 2026-08-06
 
 ## Evidence state
@@ -18,6 +18,7 @@
 | Buzz treats humans and agents as independently keyed members in one signed event workspace. | fact | [Buzz vision](https://github.com/block/buzz/blob/main/VISION.md) | 2026-07-23 | live verified |
 | Buzz says tighter agent scoping remains important future work. | fact | [Jack Dorsey's launch post](https://x.com/jack) and project context | 2026-07-23 | operator-provided launch text |
 | Buzz's draft NIP-OA constrains event kind and self-declared timestamps but does not enforce wall-clock expiry. | fact | [NIP-OA](https://github.com/block/buzz/blob/main/docs/nips/NIP-OA.md) | 2026-07-23 | live verified |
+| Mature systems and active 2026 Internet-Drafts already cover general policy, identity, task authorization, delegation, approval, and signed receipts. | fact | [Prior-art matrix](PRIOR_ART.md) | 2026-07-23 | primary-source review |
 | Exact task permits could improve trustworthy agent participation in Buzz-like workspaces. | inference | protocol gap plus Jalen Studio operating experience | 2026-07-23 | unverified externally |
 | PermitMesh can become an interoperable community standard. | aspiration | none yet | 2026-07-23 | unverified |
 
@@ -110,7 +111,9 @@ Narrow, machine-verifiable authority is a default primitive for human-agent inst
 
 - Value exchange: maintainers receive safer delegation; runtimes receive a portable policy boundary; contributors receive an open conformance target.
 - Monetization or resource model: open protocol and reference core; potential future paid enforcement, policy authoring, compliance evidence, or hosted revocation only after adoption proof.
-- Distribution or adoption wedge: a concrete answer to Buzz's stated agent-scoping problem, demonstrated through an allowed-versus-denied CLI receipt.
+- Distribution or adoption wedge: a narrow, runnable software-change profile
+  with adversarial fixtures, offered to agent-runtime and authorization
+  maintainers without claiming a new general authorization architecture.
 - Sustainability hypothesis: protocol credibility creates consulting or hosted-product opportunities without compromising the open core.
 
 ## Roadmap and gates
@@ -148,18 +151,25 @@ Narrow, machine-verifiable authority is a default primitive for human-agent inst
 
 ## Independent review
 
-- Drafter review: Codex, GPT-5.6 Sol, high reasoning
-- Refuter review: pending provider-diverse review
-- Review record: none
-- Quality score: 76/100 self-assessed draft
-- Disagreements: none recorded; external problem validation absent
-- Final ruling and owner: pending Jalen
+- Drafter: Codex, GPT-5.6 Sol
+- Independent council: Claude Opus 4.8, Gemini 3.6 Flash via Antigravity,
+  Cursor Grok 4.5, and GPT-5.6 Sol
+- Review record: `reviews/FRONTIER_COUNCIL_REVIEW_20260723.md`
+- Council outcome: adopt the release candidate with conditions; do not publish
+  the original commit as-is
+- Quality score: 76/100 self-assessed charter draft; council publication scores
+  ranged from 68 to 88 and were not averaged
+- Material disagreement: one reviewer wanted external problem proof before
+  public positioning; the owner ruling adopted that caution for Buzz outreach
+- Final ruling and owner: Jalen authorized end-to-end execution on 2026-07-23;
+  the North Star itself remains not adopted
 
 ## Next exact campaign
 
 - Completion type: campaign
-- Owner or claim expectation: one PermitMesh writer; upstream/public actions require Jalen approval.
-- Exact scope: package the local proof, publish only after approval, recruit three maintainers, and open one respectful Buzz design discussion.
+- Owner or claim expectation: one PermitMesh writer under the live release claim.
+- Exact scope: close the council gates, publish the proof, recruit three maintainers,
+  and gate any Buzz discussion on one independent reaction.
 - Non-goals: production enforcement, public security claims, paid hosting, Buzz fork.
 - Validation floor: clean-install CLI demo, all tests passing, schema validation, no false allow in adversarial fixtures, explicit unsigned-event behavior.
 - Stop conditions: upstream asks us to stop; name conflict creates material confusion; three maintainers find no portable-policy need; any known false allow remains unresolved.

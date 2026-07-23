@@ -1,10 +1,10 @@
 {
   "artifact_version": "0.1",
-  "validated_at": "2026-07-23T00:57:30-07:00",
+  "validated_at": "2026-07-23T01:45:04-07:00",
   "environment": {
     "os": "Windows",
     "python": "3.11 and 3.13",
-    "installation": "fresh Python 3.13 virtual environment install plus direct Python 3.11 compatibility run"
+    "installation": "direct Python 3.11 and 3.13 compatibility runs; clean committed-checkout receipt pending"
   },
   "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
   "checks": [
@@ -12,7 +12,7 @@
       "name": "unit_tests",
       "command": "python -m unittest discover -s tests -v",
       "result": "pass",
-      "count": 18
+      "count": 32
     },
     {
       "name": "compile",
@@ -21,6 +21,11 @@
     },
     {
       "name": "contract_schema",
+      "command": "Draft202012Validator plus format checker",
+      "result": "pass"
+    },
+    {
+      "name": "request_completion_and_receipt_schemas",
       "command": "Draft202012Validator plus format checker",
       "result": "pass"
     },
@@ -42,6 +47,17 @@
       "violation_count": 8
     },
     {
+      "name": "completion_fixture",
+      "command": "permitmesh verify-completion examples/contract.valid.json examples/completion.valid.json --evaluation-time 2026-07-23T12:00:00Z",
+      "result": "allowed"
+    },
+    {
+      "name": "adversarial_conformance",
+      "command": "permitmesh conformance examples/conformance-suite.json",
+      "result": "pass",
+      "cases": 18
+    },
+    {
       "name": "nostr_event_template",
       "command": "permitmesh to-event examples/contract.valid.json --created-at 1784800000",
       "result": "pass",
@@ -53,6 +69,7 @@
     "No tool sandbox or runtime enforcement",
     "No revocation distribution",
     "No persistent cumulative budget ledger",
-    "No live Buzz relay integration"
+    "No live Buzz relay integration",
+    "Subject, channel, approval, usage, claim, fence, and completion inputs require a trusted adapter"
   ]
 }

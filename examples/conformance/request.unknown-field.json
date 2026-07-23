@@ -11,5 +11,5 @@
   "claim_id": "claim-permitmesh-demo",
   "fencing_generation": 3,
   "approvals": [],
-  "at": "2026-07-23T12:00:00Z"
+  "surprise": true
 }

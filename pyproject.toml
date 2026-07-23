@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "permitmesh"
 version = "0.1.0"
-description = "Portable, deterministic capability contracts for AI agents in shared workspaces."
+description = "A portable policy-decision profile for AI agents changing software."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }

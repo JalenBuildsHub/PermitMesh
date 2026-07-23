@@ -15,6 +15,7 @@ Run:
 $env:PYTHONPATH = "$PWD\src"
 python -m unittest discover -s tests -v
 python -m compileall -q src tests
+python -m permitmesh conformance examples\conformance-suite.json
 ```
 
 Contributions must preserve fail-closed behavior, exhaustive denial reasons, deterministic digests, and explicit signed/unsigned states.

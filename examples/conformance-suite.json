@@ -1,0 +1,155 @@
+{
+  "suite_version": "0.1",
+  "name": "PermitMesh reference conformance suite",
+  "cases": [
+    {
+      "id": "allow-in-scope-edit",
+      "contract": "contract.valid.json",
+      "request": "request.allowed.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "allow"
+    },
+    {
+      "id": "allow-at-not-before-boundary",
+      "contract": "contract.valid.json",
+      "request": "request.allowed.json",
+      "evaluation_time": "2026-07-23T00:00:00Z",
+      "expected_outcome": "allow"
+    },
+    {
+      "id": "deny-at-expiry-boundary",
+      "contract": "contract.valid.json",
+      "request": "request.allowed.json",
+      "evaluation_time": "2026-07-30T00:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["contract has expired"]
+    },
+    {
+      "id": "deny-unknown-action",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.unknown-action.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["is not granted"]
+    },
+    {
+      "id": "deny-wrong-subject",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.wrong-subject.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["subject_id does not match"]
+    },
+    {
+      "id": "deny-wrong-channel",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.wrong-channel.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["channel 'other/work' is outside scope"]
+    },
+    {
+      "id": "deny-parent-traversal",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.traversal.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["safe relative path"]
+    },
+    {
+      "id": "deny-read-without-path",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.read-no-path.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["request.path is required for read"]
+    },
+    {
+      "id": "deny-windows-drive-path",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.windows-drive.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["safe relative path"]
+    },
+    {
+      "id": "deny-single-segment-glob-descendant",
+      "contract": "conformance/contract.single-segment-path.json",
+      "request": "request.allowed.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["outside allowed paths"]
+    },
+    {
+      "id": "deny-malformed-approvals",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.malformed-approvals.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["approvals must be a string array"]
+    },
+    {
+      "id": "deny-stale-claim",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.stale-claim.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["claim_id does not match"]
+    },
+    {
+      "id": "deny-stale-fence",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.stale-fence.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["fencing_generation does not match"]
+    },
+    {
+      "id": "deny-exceeded-budgets",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.exceeded-budgets.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": [
+        "exceeds max_files_changed",
+        "exceeds max_commands",
+        "exceeds max_cost_usd"
+      ]
+    },
+    {
+      "id": "deny-unknown-request-field",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.unknown-field.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["unknown field"]
+    },
+    {
+      "id": "reject-nonfinite-number",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.nonfinite.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "malformed"
+    },
+    {
+      "id": "allow-complete-required-evidence",
+      "operation": "verify_completion",
+      "contract": "contract.valid.json",
+      "request": "completion.valid.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "allow"
+    },
+    {
+      "id": "deny-incomplete-required-evidence",
+      "operation": "verify_completion",
+      "contract": "contract.valid.json",
+      "request": "completion.missing.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": [
+        "missing required_commands",
+        "missing required_artifacts"
+      ]
+    }
+  ]
+}

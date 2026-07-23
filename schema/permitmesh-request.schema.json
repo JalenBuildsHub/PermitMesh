@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://permitmesh.dev/schema/permitmesh-request-0.1.json",
+  "title": "PermitMesh Action Request 0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subject_id",
+    "action",
+    "repository",
+    "ref",
+    "files_changed",
+    "commands_used",
+    "cost_usd",
+    "claim_id",
+    "fencing_generation",
+    "approvals"
+  ],
+  "properties": {
+    "subject_id": {"type": "string", "minLength": 1},
+    "action": {
+      "enum": ["read", "edit", "shell", "test", "commit", "review", "deploy", "publish", "spend"]
+    },
+    "channel": {"type": "string", "minLength": 1},
+    "repository": {"type": "string", "minLength": 1},
+    "ref": {"type": "string", "minLength": 1},
+    "path": {"type": "string", "minLength": 1},
+    "files_changed": {"type": "integer", "minimum": 0},
+    "commands_used": {"type": "integer", "minimum": 0},
+    "cost_usd": {"type": "number", "minimum": 0},
+    "claim_id": {"type": "string", "minLength": 1},
+    "fencing_generation": {"type": "integer", "minimum": 1},
+    "approvals": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "at": {"type": "string", "format": "date-time"}
+  }
+}

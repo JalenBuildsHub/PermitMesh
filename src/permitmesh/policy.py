@@ -12,6 +12,7 @@ from typing import Any
 
 
 SUPPORTED_VERSION = "0.1"
+PATH_REQUIRED_CAPABILITIES = {"read", "edit"}
 KNOWN_CAPABILITIES = {
     "read",
     "edit",
@@ -53,10 +54,11 @@ def canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 
-def contract_digest(contract: dict[str, Any]) -> str:
-    payload = dict(contract)
-    payload.pop("signature", None)
-    payload.pop("contract_digest", None)
+def contract_digest(contract: Any) -> str:
+    payload = dict(contract) if isinstance(contract, dict) else contract
+    if isinstance(payload, dict):
+        payload.pop("signature", None)
+        payload.pop("contract_digest", None)
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
 
 
@@ -78,7 +80,13 @@ def _parse_time(value: Any, field: str, violations: list[str]) -> datetime | Non
 def _is_safe_relative_path(value: str) -> bool:
     normalized = value.replace("\\", "/")
     path = PurePosixPath(normalized)
-    return bool(value) and not path.is_absolute() and ".." not in path.parts
+    return (
+        bool(value)
+        and "\x00" not in value
+        and re.match(r"^[A-Za-z]:", normalized) is None
+        and not path.is_absolute()
+        and ".." not in path.parts
+    )
 
 
 def _validate_patterns(
@@ -95,7 +103,7 @@ def _validate_patterns(
 def _reject_unknown_fields(
     value: dict[str, Any], allowed: set[str], field: str, violations: list[str]
 ) -> None:
-    for unknown in sorted(value.keys() - allowed):
+    for unknown in sorted(value.keys() - allowed, key=str):
         violations.append(f"{field} contains unknown field: {unknown}")
 
 
@@ -137,6 +145,8 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
     capabilities = contract["capabilities"]
     if not isinstance(capabilities, list) or not capabilities:
         violations.append("capabilities must be a non-empty array")
+    elif not all(isinstance(capability, str) for capability in capabilities):
+        violations.append("capabilities must contain strings")
     else:
         unknown = sorted(set(capabilities) - KNOWN_CAPABILITIES)
         if unknown:
@@ -174,6 +184,8 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
                     isinstance(ref, str) and ref for ref in refs
                 ):
                     violations.append(f"{prefix}.refs must be a non-empty string array")
+                elif len(refs) != len(set(refs)):
+                    violations.append(f"{prefix}.refs must not contain duplicates")
                 _validate_patterns(repo.get("allow_paths"), f"{prefix}.allow_paths", violations)
                 _validate_patterns(
                     repo.get("deny_paths", []),
@@ -187,6 +199,8 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
             isinstance(channel, str) and channel for channel in channels
         ):
             violations.append("scope.channels must be a string array")
+        elif len(channels) != len(set(channels)):
+            violations.append("scope.channels must not contain duplicates")
 
     validity = contract["validity"]
     if not isinstance(validity, dict):
@@ -236,8 +250,15 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
                 gate, {"actions", "min_approvals", "approvers"}, prefix, violations
             )
             actions = gate.get("actions")
-            if not isinstance(actions, list) or not actions or not set(actions) <= KNOWN_CAPABILITIES:
+            if (
+                not isinstance(actions, list)
+                or not actions
+                or not all(isinstance(action, str) for action in actions)
+                or not set(actions) <= KNOWN_CAPABILITIES
+            ):
                 violations.append(f"{prefix}.actions must contain known capabilities")
+            elif len(actions) != len(set(actions)):
+                violations.append(f"{prefix}.actions must not contain duplicates")
             minimum = gate.get("min_approvals")
             if not isinstance(minimum, int) or isinstance(minimum, bool) or minimum < 1:
                 violations.append(f"{prefix}.min_approvals must be a positive integer")
@@ -246,8 +267,11 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
                 isinstance(approver, str) and approver for approver in approvers
             ):
                 violations.append(f"{prefix}.approvers must be a non-empty string array")
-            elif isinstance(minimum, int) and minimum > len(set(approvers)):
-                violations.append(f"{prefix}.min_approvals exceeds unique approvers")
+            else:
+                if len(approvers) != len(set(approvers)):
+                    violations.append(f"{prefix}.approvers must not contain duplicates")
+                if isinstance(minimum, int) and minimum > len(set(approvers)):
+                    violations.append(f"{prefix}.min_approvals exceeds unique approvers")
 
     lifecycle = contract["lifecycle"]
     if not isinstance(lifecycle, dict):
@@ -276,6 +300,8 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
             value = validation.get(field)
             if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
                 violations.append(f"validation.{field} must be a string array")
+            elif len(value) != len(set(value)):
+                violations.append(f"validation.{field} must not contain duplicates")
 
     signature = contract.get("signature")
     if signature is not None:
@@ -298,7 +324,7 @@ def _matches_path(path: str, pattern: str) -> bool:
     if normalized_pattern.endswith("/**"):
         root = normalized_pattern[:-3].rstrip("/")
         return normalized_path == root or normalized_path.startswith(f"{root}/")
-    return fnmatchcase(normalized_path, normalized_pattern)
+    return PurePosixPath(normalized_path).match(normalized_pattern)
 
 
 def authorize(
@@ -315,7 +341,9 @@ def authorize(
     if not isinstance(request, dict):
         return Decision(False, digest, ("request must be a JSON object",), tuple(checks))
     request_fields = {
+        "subject_id",
         "action",
+        "channel",
         "repository",
         "ref",
         "path",
@@ -328,7 +356,7 @@ def authorize(
         "at",
     }
     _reject_unknown_fields(request, request_fields, "request", violations)
-    required_request_fields = request_fields - {"path", "at"}
+    required_request_fields = request_fields - {"path", "at", "channel"}
     for field in sorted(required_request_fields - request.keys()):
         violations.append(f"missing required request field: {field}")
 
@@ -346,11 +374,21 @@ def authorize(
         violations.append("contract has expired")
     checks.append("validity_window")
 
+    if request.get("subject_id") != contract["subject"]["id"]:
+        violations.append("subject_id does not match the active contract")
+    checks.append("subject")
+
+    configured_channels = contract["scope"]["channels"]
+    requested_channel = request.get("channel")
+    if configured_channels and requested_channel not in configured_channels:
+        violations.append(f"channel {requested_channel!r} is outside scope")
+    checks.append("channel")
+
     action = request.get("action")
     if action not in contract["capabilities"]:
         violations.append(f"capability {action!r} is not granted")
-    if action == "edit" and request.get("path") is None:
-        violations.append("request.path is required for edit")
+    if action in PATH_REQUIRED_CAPABILITIES and request.get("path") is None:
+        violations.append(f"request.path is required for {action}")
     checks.append("capability")
 
     repository_name = request.get("repository")
@@ -427,6 +465,8 @@ def authorize(
         violations.append("request.approvals must be a string array")
         supplied_approvals: set[str] = set()
     else:
+        if len(raw_approvals) != len(set(raw_approvals)):
+            violations.append("request.approvals must not contain duplicates")
         supplied_approvals = set(raw_approvals)
     for gate in contract["approval_gates"]:
         if action in gate["actions"]:
@@ -437,6 +477,77 @@ def authorize(
                     f"from the configured approvers"
                 )
     checks.append("approval_gates")
+
+    return Decision(not violations, digest, tuple(violations), tuple(checks))
+
+
+def verify_completion(
+    contract: dict[str, Any],
+    report: dict[str, Any],
+    *,
+    now: datetime | None = None,
+) -> Decision:
+    digest = contract_digest(contract)
+    violations = list(validate_contract(contract))
+    checks: list[str] = []
+    if violations:
+        return Decision(False, digest, tuple(violations), tuple(checks))
+    if not isinstance(report, dict):
+        return Decision(False, digest, ("completion report must be a JSON object",), ())
+
+    report_fields = {
+        "subject_id",
+        "claim_id",
+        "fencing_generation",
+        "commands_passed",
+        "artifacts_present",
+    }
+    _reject_unknown_fields(report, report_fields, "completion report", violations)
+    for field in sorted(report_fields - report.keys()):
+        violations.append(f"missing required completion field: {field}")
+
+    effective_now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    not_before = _parse_time(contract["validity"]["not_before"], "validity.not_before", violations)
+    expires_at = _parse_time(contract["validity"]["expires_at"], "validity.expires_at", violations)
+    if not_before and effective_now < not_before:
+        violations.append("contract is not active yet")
+    if expires_at and effective_now >= expires_at:
+        violations.append("contract has expired")
+    checks.append("validity_window")
+
+    if report.get("subject_id") != contract["subject"]["id"]:
+        violations.append("subject_id does not match the active contract")
+    checks.append("subject")
+
+    lifecycle = contract["lifecycle"]
+    if report.get("claim_id") != lifecycle["claim_id"]:
+        violations.append("claim_id does not match the active contract")
+    if report.get("fencing_generation") != lifecycle["fencing_generation"]:
+        violations.append("fencing_generation does not match the active contract")
+    checks.append("claim_and_fence")
+
+    evidence_fields = {
+        "commands_passed": "required_commands",
+        "artifacts_present": "required_artifacts",
+    }
+    for report_field, contract_field in evidence_fields.items():
+        supplied = report.get(report_field)
+        if not isinstance(supplied, list) or not all(
+            isinstance(item, str) and item for item in supplied
+        ):
+            violations.append(f"completion report.{report_field} must be a string array")
+            supplied_set: set[str] = set()
+        else:
+            supplied_set = set(supplied)
+            if len(supplied) != len(supplied_set):
+                violations.append(
+                    f"completion report.{report_field} must not contain duplicates"
+                )
+        for missing in sorted(
+            set(contract["validation"][contract_field]) - supplied_set
+        ):
+            violations.append(f"missing {contract_field}: {missing}")
+        checks.append(contract_field)
 
     return Decision(not violations, digest, tuple(violations), tuple(checks))
 

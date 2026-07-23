@@ -1,21 +1,21 @@
 # PermitMesh Launch Campaign
 
-Status: draft; no external messages sent
+Status: operator-authorized campaign; no external messages sent
 
 ## Positioning
 
-- **Category:** portable capability contracts for workspace agents
-- **One line:** Buzz gives every agent an identity. PermitMesh gives each piece of work an exact authority boundary.
-- **Proof:** one command allows a narrow source edit; the same evaluator denies an over-scoped deploy with eight explicit reasons.
-- **Ask:** help decide where this primitive belongs and break the v0.1 policy model with real workflows.
+- **Category:** software-change authorization profile and conformance lab
+- **One line:** PermitMesh makes repo, path, budget, approval, claim-fence, and required-proof constraints portable across agent runtimes.
+- **Proof:** a dependency-free evaluator plus eighteen adversarial fixtures and a machine-readable conformance receipt.
+- **Ask:** run it against a real workflow, state what actually enforced the decision, and report false allows or false denies.
 
 ## Audience
 
 Primary:
 
-- Buzz maintainers and early self-hosting teams;
-- Nostr protocol contributors interested in agents;
-- maintainers experimenting with Goose, Codex, Claude Code, or MCP tools.
+- maintainers experimenting with Goose, Codex, Claude Code, or MCP tools;
+- authorization implementers evaluating concrete agent-work profiles;
+- open-source teams willing to publish a redacted conformance receipt.
 
 Secondary:
 
@@ -24,12 +24,13 @@ Secondary:
 
 ## Launch sequence
 
-1. Publish the Apache-2.0 repo after Jalen's approval.
+1. Publish the Apache-2.0 repo after the council's prepublication gates pass.
 2. Confirm the clean-install demo and CI on the public clone.
-3. Open one design-first discussion in the venue Buzz's contribution guide prefers.
-4. Publish the short X thread below with the runnable proof.
-5. Personally onboard three maintainers and ask for a redacted allow/deny receipt.
-6. Publish findings after 10–14 days, including reasons the idea may be wrong.
+3. Publish one proof-led launch note with the runnable conformance command.
+4. Personally invite three relevant maintainers to reproduce the suite.
+5. Wait for at least one independent maintainer reaction or reproduction.
+6. Only then open one design-first Buzz discussion, if the evidence still points there.
+7. Publish findings after 10–14 days, including reasons the idea may be wrong.
 
 Do not carpet-post communities, ask for stars, or describe the project as a security sandbox.
 
@@ -37,17 +38,16 @@ Do not carpet-post communities, ask for stars, or describe the project as a secu
 
 ### Post 1
 
-Buzz gives people and agents the same cryptographic identity.
+AI-agent authorization is becoming a crowded standards field. That is good.
 
-That solves “who did this?”
+We built one deliberately narrow experiment: a portable software-change
+profile for repo, path, budget, approval, claim-fence, and proof constraints.
 
-The next question is “what, exactly, were they allowed to do?”
-
-We built a small open experiment called PermitMesh.
+It is called PermitMesh.
 
 ### Post 2
 
-A PermitMesh contract scopes an agent to:
+A PermitMesh contract describes:
 
 - exact repos, refs, channels, and paths
 - allowed actions
@@ -56,7 +56,7 @@ A PermitMesh contract scopes an agent to:
 - a live claim + fencing generation
 - required validation evidence
 
-One portable JSON document. Deterministic decisions.
+One portable JSON document. Deterministic policy decisions.
 
 ### Post 3
 
@@ -68,13 +68,11 @@ No model decides. No vague “be careful” prompt.
 
 ### Post 4
 
-This is not affiliated with Block, not a Buzz fork, and not a sandbox.
+It is a PDP, not a sandbox or enforcement proxy, and it is not affiliated with
+Block, Buzz, or a standards body.
 
-It is a question in runnable form:
-
-Should task-scoped agent permits complement NIP-OA and travel as signed workspace events?
-
-We want maintainers to break the idea with real workflows.
+The repo includes a candid prior-art matrix and eighteen-case conformance suite.
+We want maintainers to break the profile with real workflows.
 
 ## Upstream discussion draft
 
@@ -110,4 +108,8 @@ The campaign succeeds at five verified external authorization runs across at lea
 
 ## Authority boundary
 
-This document is ready to use after Jalen approves public publishing. It does not authorize creating a public repository, posting to X, contacting maintainers, or opening an upstream discussion.
+Jalen authorized the project lead to execute this campaign end to end on
+2026-07-23. Public repository creation and measured proof-led outreach are in
+scope after validation. The Buzz discussion remains evidence-gated on one
+independent maintainer reaction. Package-registry publication is a separate
+decision.

@@ -6,7 +6,7 @@
   "project_name": "PermitMesh",
   "project_type": "open_source",
   "lifecycle_state": "idea",
-  "lifecycle_detail": "Local proof implemented; public release and external validation pending.",
+  "lifecycle_detail": "Council-conditioned release candidate in progress; public release and external validation pending.",
   "evidence_status": "draft",
   "rubric_applicability": "applicable",
   "north_star": "Help open-source maintainers safely delegate real work to agents by making authority narrow, portable, inspectable, and provable at every action boundary.",
@@ -38,6 +38,22 @@
       "claim": "Portable task-level capability contracts will improve trusted agent adoption.",
       "class": "inference",
       "source": null,
+      "as_of": "2026-07-23",
+      "verification": "unverified",
+      "fresh_until": null
+    },
+    {
+      "claim": "Existing systems and active Internet-Drafts cover general policy, identity, task authorization, delegation, approval, and signed receipts.",
+      "class": "fact",
+      "source": "docs/PRIOR_ART.md",
+      "as_of": "2026-07-23",
+      "verification": "live_verified",
+      "fresh_until": "2026-08-06"
+    },
+    {
+      "claim": "PermitMesh's possible delta is the combined software-change profile.",
+      "class": "inference",
+      "source": "docs/PRIOR_ART.md",
       "as_of": "2026-07-23",
       "verification": "unverified",
       "fresh_until": null
@@ -118,7 +134,7 @@
     "Do not handle transactions in the first campaign."
   ],
   "economics_or_sustainability": "Open protocol and core, with possible future paid enforcement or compliance services only after adoption proof.",
-  "distribution_or_adoption_wedge": "A runnable answer to Buzz's stated agent-scoping problem, shown through an allowed-versus-denied decision receipt.",
+  "distribution_or_adoption_wedge": "A narrow runnable software-change profile with adversarial fixtures for agent-runtime and authorization maintainers.",
   "governing_rulings": [],
   "risks": [
     {
@@ -145,7 +161,7 @@
     },
     {
       "phase": "Phase 1 - public problem test",
-      "entry_evidence": ["Local proof passes", "Jalen approves publication"],
+      "entry_evidence": ["Local proof passes", "Council conditions pass", "Jalen authorizes publication"],
       "done_when": ["Three external maintainers run the demo", "One upstream design conversation produces substantive feedback"],
       "non_goals": ["Production security claims", "Paid hosting"],
       "validation": ["Clean external install", "Redacted decision receipts"],
@@ -157,9 +173,9 @@
     "owner": "Jalen Studio, one PermitMesh writer",
     "scope": [
       "Package the local proof",
-      "Publish only after Jalen approval",
+      "Publish after the council's prepublication gates pass",
       "Recruit three maintainers",
-      "Open one respectful Buzz design discussion"
+      "Gate one respectful Buzz design discussion on independent reaction"
     ],
     "non_goals": ["Production enforcement", "Paid hosting", "Buzz fork"],
     "validation_floor": [
@@ -177,9 +193,9 @@
   },
   "review": {
     "quality_score": 76,
-    "review_status": "unreviewed",
-    "reviewed_by": ["Codex"],
-    "models_used": ["GPT-5.6 Sol"],
+    "review_status": "changes_required",
+    "reviewed_by": ["Codex", "Claude", "Antigravity", "Cursor"],
+    "models_used": ["GPT-5.6 Sol", "Claude Opus 4.8", "Gemini 3.6 Flash", "Cursor Grok 4.5"],
     "rubric_scores": {
       "truth_and_evidence": 4,
       "beneficiary_and_progress": 4,
@@ -192,9 +208,9 @@
       "roadmap_and_gates": 4,
       "agent_executability": 4
     },
-    "disagreements": ["External problem validation and provider-diverse review are still pending."],
-    "final_ruling": null,
-    "ruling_owner": null,
+    "disagreements": ["External problem validation remains absent; one reviewer wanted that proof before public positioning."],
+    "final_ruling": "Proceed with the council-conditioned release campaign; keep Buzz outreach gated; do not adopt the North Star yet.",
+    "ruling_owner": "Jalen",
     "next_review": "2026-08-06"
   },
   "change_log": [
@@ -202,6 +218,11 @@
       "date": "2026-07-23",
       "change": "Initial hypothesis and local proof campaign.",
       "owner": "Codex for Jalen Studio"
+    },
+    {
+      "date": "2026-07-23",
+      "change": "Recorded four-provider publication review and end-to-end campaign authority without adopting the charter.",
+      "owner": "Jalen"
     }
   ]
 }

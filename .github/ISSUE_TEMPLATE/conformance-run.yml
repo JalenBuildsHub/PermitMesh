@@ -1,0 +1,62 @@
+name: Conformance run
+description: Report a PermitMesh run against a real agent workflow.
+title: "[conformance] "
+labels:
+  - conformance
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing PermitMesh. Remove secrets, personal data, repository URLs,
+        and sensitive paths before submitting. A policy decision is not proof that a tool
+        runtime enforced it.
+  - type: input
+    id: implementation
+    attributes:
+      label: Implementation and version
+      placeholder: permitmesh 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: Enforcement boundary
+      description: What actually refused denied actions?
+      options:
+        - Policy decision only; no tool execution
+        - Wrapper checked every protected action
+        - Tool or runtime enforced every protected action
+        - Other (explain below)
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Real workflow tested
+      description: Name the agent/runtime and the kind of work. Do not include private identifiers.
+    validations:
+      required: true
+  - type: textarea
+    id: receipt
+    attributes:
+      label: Redacted conformance receipt
+      description: Paste or link the JSON receipt after reviewing it for sensitive data.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: intent
+    attributes:
+      label: Did allow and deny match your intent?
+      description: Report false allows, false denies, ambiguity, and enforcement gaps.
+    validations:
+      required: true
+  - type: checkboxes
+    id: attestations
+    attributes:
+      label: Attestations
+      options:
+        - label: I removed secrets and sensitive workspace details.
+          required: true
+        - label: I described the enforcement boundary truthfully.
+          required: true

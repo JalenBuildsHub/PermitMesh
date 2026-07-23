@@ -29,13 +29,30 @@ Evaluators should collect all independently observable violations in one pass. T
 
 1. Validate the permit structure and semantic invariants.
 2. Establish trusted evaluation time.
-3. Verify the requested capability.
-4. Resolve exact repository, ref, and path scope.
-5. Compare cumulative usage to declared budgets.
-6. match the active claim and fencing generation.
-7. verify action-specific approval gates.
+3. Bind the request subject to the permit subject.
+4. Verify the requested capability.
+5. Resolve exact repository, ref, and path scope.
+6. Compare cumulative usage to declared budgets.
+7. Match the active claim and fencing generation.
+8. Verify action-specific approval gates.
 
 Any violation denies the request.
+
+When `scope.channels` is non-empty, an action request must name one configured
+channel. The evaluator also binds every request to `subject.id`; a trusted
+adapter must authenticate the caller before populating that field.
+
+`read` and `edit` are file-oriented capabilities and require a path. Other
+capabilities are repository-level decisions; if an adapter supplies a path, it
+is still checked. A shell authorization does not implicitly authorize file
+effects—the enforcement adapter must separately evaluate resulting reads or
+edits or provide an equivalent trusted interception boundary.
+
+PermitMesh is a domain profile for software-change decisions. It does not
+define a new policy language, credential, delegation chain, or enforcement
+protocol. An implementation may evaluate the profile directly or translate it
+to a general system such as OPA, Cedar, Biscuit, or an OAuth authorization
+detail. The translation must preserve fail-closed behavior.
 
 ## Path rules
 
@@ -43,7 +60,9 @@ Any violation denies the request.
 - Absolute paths and `..` segments are invalid.
 - Deny patterns win over allow patterns.
 - A trailing `/**` includes the named directory and all descendants.
-- Other patterns use case-sensitive glob matching in the reference implementation.
+- Other patterns use case-sensitive, path-segment-aware glob matching. For
+  example, `src/*` does not match `src/package/module.py`; use `src/**` for
+  descendants.
 
 Production adapters must decide whether repository name and path comparison should be case-sensitive on their target filesystem. The decision must be consistent between evaluation and enforcement.
 
@@ -76,6 +95,36 @@ The digest provides stable content identity, not authorship. Signature verificat
 - `content`: canonical contract JSON
 
 The adapter requires lowercase hex Nostr public keys, sets the issuer `pubkey`, leaves `id` and `sig` empty, and labels the outer envelope `unsigned_template`. A Nostr implementation must compute the NIP-01 event ID and create a valid Schnorr signature before publishing the inner event.
+
+## Conformance receipts
+
+`permitmesh conformance` runs deterministic fixtures and emits a 0.1 receipt.
+The receipt binds to the canonical suite digest and records:
+
+- implementation name and version;
+- expected and observed outcome for every case;
+- the decision or malformed-input result;
+- pass/fail totals; and
+- a caller-supplied description of the actual enforcement boundary.
+
+The receipt is not signed and is not proof that a runtime enforced a decision.
+It is reproducible interoperability evidence. Cryptographic authorization
+evidence and execution closure records belong to stronger systems such as the
+emerging SCITT/WIMSE Permit work.
+
+See `schema/permitmesh-conformance-receipt.schema.json` and
+`examples/conformance-suite.json`.
+
+## Completion evidence
+
+`permitmesh verify-completion` checks a declared completion report against
+`validation.required_commands` and `validation.required_artifacts`. The report
+is bound to subject, claim, fencing generation, and the validity window.
+
+The command checks completeness of the declaration only. It does not execute a
+command, hash an artifact, authenticate an approval, or prove that the claimed
+evidence is true. A production adapter must obtain those facts from trusted
+execution and artifact systems.
 
 ## Compatibility questions for upstream discussion
 

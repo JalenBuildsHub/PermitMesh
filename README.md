@@ -1,8 +1,15 @@
 # PermitMesh
 
-**Agents should not receive a vague prompt and a powerful shell. They should receive a verifiable permit.**
+**A portable policy-decision profile for AI agents changing software.**
 
-PermitMesh is an experimental, open capability-contract format for AI agents working alongside people. A permit states exactly:
+> **PDP, not PEP.** PermitMesh evaluates policy. It does not authenticate an
+> issuer, sandbox an agent, intercept tools, or enforce its decisions.
+
+PermitMesh is an independent, experimental software-change profile and
+conformance suite. It is not affiliated with or endorsed by Block, Buzz, the
+IETF, or any standards body.
+
+A PermitMesh contract states:
 
 - who authorized the agent;
 - which repository, ref, channel, and paths it may touch;
@@ -14,19 +21,28 @@ PermitMesh is an experimental, open capability-contract format for AI agents wor
 
 The reference CLI evaluates proposed actions deterministically and fails closed with a machine-readable explanation.
 
-> Status: **HYPOTHESIS — NOT ADOPTED.** Version 0.1 is a local proof, not a security boundary by itself.
+> Status: **HYPOTHESIS — NOT ADOPTED.** Version 0.1 is a local
+> interoperability experiment, not a security boundary.
 
 ## Why this exists
 
-[Buzz](https://github.com/block/buzz) gives people and agents the same cryptographic identity and puts their work in one signed event stream. Its own roadmap calls out tighter agent scoping as important future work.
+[Buzz](https://github.com/block/buzz) gives people and agents cryptographic
+identities in one signed event stream. Its roadmap names tighter agent scoping
+as future work.
 
 PermitMesh explores a complementary layer:
 
-> **Buzz makes every agent a member. PermitMesh makes every action answer to an exact contract.**
+> **Identity says who acted. A software-work permit describes the boundary
+> an enforcement point should apply.**
 
 Buzz's draft owner-attestation proposal proves which owner authorized an agent key and can restrict event kinds or self-declared timestamps. It explicitly does not provide trusted wall-clock expiry. PermitMesh adds the work-shaped constraints that an execution boundary needs: paths, actions, budgets, approval gates, claims, and fencing generations.
 
 PermitMesh does not fork Buzz, replace Nostr identity, or claim to be an accepted Buzz protocol. It is transport-neutral and includes an experimental adapter that turns a valid permit into an **unsigned** Nostr application-data event template.
+
+This is a narrow profile, not a claim to have invented fine-grained
+authorization. OAuth RAR, OPA, Cedar, Macaroons, Biscuit, ZCAP-LD, SPIFFE, MCP,
+and several 2026 agent-authorization drafts cover adjacent or deeper layers.
+See the candid [prior-art matrix](docs/PRIOR_ART.md).
 
 ## Thirty-second demo
 
@@ -76,6 +92,18 @@ Run the complete reproducible demo:
 .\scripts\demo.ps1
 ```
 
+Run the eighteen-case adversarial conformance suite and save a receipt:
+
+```powershell
+permitmesh conformance examples\conformance-suite.json `
+  --receipt validation\conformance-local.json
+```
+
+The suite covers subject and channel mismatch, unknown actions, traversal and
+glob edges, malformed approvals, stale claims and fences, validity boundaries,
+exceeded budgets, unknown fields, non-finite input, and required completion
+evidence.
+
 ## How it fits
 
 ```mermaid
@@ -97,16 +125,22 @@ PermitMesh is the policy decision point. The runtime, relay, or tool proxy remai
 permitmesh validate <contract>
 permitmesh digest <contract>
 permitmesh authorize <contract> <request> [--evaluation-time RFC3339]
+permitmesh verify-completion <contract> <report> [--evaluation-time RFC3339]
 permitmesh to-event <contract> [--created-at UNIX_SECONDS]
+permitmesh conformance <suite> [--receipt PATH] [--enforcement-boundary TEXT]
 ```
 
-All decision output is JSON. Exit codes are `0` for success/allow, `2` for malformed input or an invalid contract, and `3` for a well-formed but denied request.
+All decision output is JSON. Exit codes are `0` for success/allow, `2` for
+malformed input or an invalid contract, `3` for a well-formed but denied
+request, and `4` for a conformance suite with failed cases.
 
 `--evaluation-time` exists for deterministic tests, replay, and trusted enforcement adapters. Never populate it from an agent-controlled field.
 
 ## Contract surface
 
-The v0.1 schema lives at [`schema/permitmesh-contract.schema.json`](schema/permitmesh-contract.schema.json). The reference evaluator additionally checks semantic rules JSON Schema cannot express cleanly:
+The v0.1 contract, request, completion-report, and conformance-receipt schemas
+live in [`schema/`](schema). The reference evaluator additionally checks
+cross-document and semantic rules JSON Schema cannot express cleanly:
 
 - the validity window is ordered and active;
 - paths and path patterns are relative and traversal-free;
@@ -156,6 +190,9 @@ See [docs/NORTH_STAR.md](docs/NORTH_STAR.md) for the evidence, anti-goals, and s
 
 ## Project status
 
-PermitMesh is an independent Jalen Studio experiment and is not affiliated with or endorsed by Block or the Buzz maintainers. The natural next step is a small, respectful upstream design discussion—not a claim that Buzz has adopted this model.
+PermitMesh is an independent Jalen Studio experiment. Publication is meant to
+test whether the narrow software-change profile is useful. A Buzz design
+discussion remains gated on independent reproduction; publication alone does
+not justify an upstream proposal.
 
 Apache-2.0.
