@@ -5,8 +5,8 @@
   "repository": "https://github.com/JalenBuildsHub/PermitMesh",
   "baseline_release": "v0.1.0",
   "candidate_release": "v0.1.1",
-  "candidate_code_commit": "7befd6cfa59155f697013e86b689336065516bd2",
-  "proof_commit": "dcfd98d548842a24ed3a71f2d83467a38398448e",
+  "candidate_code_commit": "a725977f473b2e9485564e61929e35fec75eb595",
+  "proof_commit": "e3c462ffcb1e4f628117f5fc519a72dce472c008",
   "baseline_public_artifact_proof": {
     "git_tag_install": "pass",
     "installed_version": "0.1.0",
@@ -125,8 +125,8 @@
   "final_public_release_proof": {
     "verified_at": "2026-07-23T10:15:49-07:00",
     "tag": "v0.1.1",
-    "annotated_tag_object": "f525f8a9ded1f6531565e9d5dcdfe6418076a317",
-    "tag_commit": "171dc3b2968536918743eeaad7f98e404d326188",
+    "annotated_tag_object": "9f9c36e3afa03b8339116d24fe47f897bcc7f742",
+    "tag_commit": "6fa3fd803ada399de6f8caad6930ba66c78ecab3",
     "commit_relationship": {
       "candidate_code_commit_is_ancestor": true,
       "proof_commit_is_ancestor": true,
@@ -143,6 +143,7 @@
     "ci": {
       "status": "pass",
       "commit": "171dc3b2968536918743eeaad7f98e404d326188",
+      "historical_pre_sanitization_commit": true,
       "event": "push",
       "ref": "v0.1.1",
       "url": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/30024894761"
@@ -190,6 +191,13 @@
     "private_vulnerability_reporting": {
       "enabled": true,
       "verification_endpoint": "https://api.github.com/repos/JalenBuildsHub/PermitMesh/private-vulnerability-reporting"
+    },
+    "history_sanitization": {
+      "performed_at": "2026-07-23",
+      "scope": "Removed internal reports and reviews from all public history and normalized author, committer, and tagger identity to the studio contact.",
+      "backup": "A verified local full-history recovery bundle was created before rewriting.",
+      "signature": "The rewritten v0.1.1 annotated tag has a locally verified SSH signature.",
+      "remote_reconciliation": "pending"
     }
   },
   "enforcement_boundary": "policy-decision-only; no tool execution",
