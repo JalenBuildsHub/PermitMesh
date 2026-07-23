@@ -1,11 +1,12 @@
 {
   "receipt_version": "0.1",
   "validated_at": "2026-07-23T09:20:14-07:00",
-  "status": "local_pass_public_ci_pending",
+  "status": "pass",
   "repository": "https://github.com/JalenBuildsHub/PermitMesh",
   "baseline_release": "v0.1.0",
   "candidate_release": "v0.1.1",
-  "candidate_commit": "7befd6cfa59155f697013e86b689336065516bd2",
+  "candidate_code_commit": "7befd6cfa59155f697013e86b689336065516bd2",
+  "proof_commit": "dcfd98d548842a24ed3a71f2d83467a38398448e",
   "baseline_public_artifact_proof": {
     "git_tag_install": "pass",
     "installed_version": "0.1.0",
@@ -92,6 +93,12 @@
       "mypy": "pass",
       "bandit": "pass",
       "compileall": "pass"
+    },
+    "public_ci": {
+      "status": "pass",
+      "commit": "dcfd98d548842a24ed3a71f2d83467a38398448e",
+      "python_versions": ["3.11", "3.13"],
+      "url": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/30024705034"
     },
     "artifacts": [
       {

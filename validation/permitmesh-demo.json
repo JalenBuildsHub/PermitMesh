@@ -89,6 +89,13 @@
       "conformance": "24/24"
     },
     {
+      "name": "public_ci",
+      "command": "GitHub Actions CI matrix on Python 3.11 and 3.13",
+      "result": "pass",
+      "commit": "dcfd98d548842a24ed3a71f2d83467a38398448e",
+      "url": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/30024705034"
+    },
+    {
       "name": "nostr_event_template",
       "command": "permitmesh to-event examples/contract.valid.json --created-at 1784800000",
       "result": "pass",
