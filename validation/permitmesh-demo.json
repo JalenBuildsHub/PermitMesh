@@ -1,6 +1,6 @@
 {
   "artifact_version": "0.1",
-  "validated_at": "2026-07-23T01:55:00-07:00",
+  "validated_at": "2026-07-23T09:20:14-07:00",
   "environment": {
     "os": "Windows",
     "python": "3.11 and 3.13",
@@ -12,7 +12,7 @@
       "name": "unit_tests",
       "command": "python -m unittest discover -s tests -v",
       "result": "pass",
-      "count": 32
+      "count": 66
     },
     {
       "name": "compile",
@@ -55,22 +55,38 @@
       "name": "adversarial_conformance",
       "command": "permitmesh conformance examples/conformance-suite.json",
       "result": "pass",
-      "cases": 18
+      "cases": 24
     },
     {
       "name": "clean_room",
       "command": "scripts/clean-room.ps1",
       "result": "pass",
-      "commit": "2bdba7e5215796a2cd85c668f2de8f9c890f9491",
-      "elapsed_seconds": 12.554,
+      "commit": "7befd6cfa59155f697013e86b689336065516bd2",
+      "python_versions": ["3.11.15", "3.13.5"],
+      "elapsed_seconds": [25.547, 15.8],
       "threshold_seconds": 600
     },
     {
-      "name": "public_ci",
-      "command": "GitHub Actions CI matrix on Python 3.11 and 3.13",
+      "name": "schema_runtime_mutation_matrix",
+      "command": "Draft202012Validator parity tests across contract, request, and completion mutations",
       "result": "pass",
-      "commit": "8706171bd9f1a920f1c8270611461c04e212b6ef",
-      "url": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/29992978931"
+      "mutations": 576,
+      "false_allows": 0
+    },
+    {
+      "name": "static_security_quality",
+      "command": "ruff check src tests; mypy src; bandit -q -r src",
+      "result": "pass"
+    },
+    {
+      "name": "package_artifacts",
+      "command": "python -m build plus fresh artifact installs",
+      "result": "pass",
+      "wheel_python": "3.11.15",
+      "sdist_python": "3.13.5",
+      "allow_exit": 0,
+      "deny_exit": 3,
+      "conformance": "24/24"
     },
     {
       "name": "nostr_event_template",

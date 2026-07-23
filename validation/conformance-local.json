@@ -353,6 +353,128 @@
     },
     {
       "decision": {
+        "allowed": false,
+        "checks": [
+          "validity_window",
+          "subject",
+          "channel",
+          "capability",
+          "repository_ref_path",
+          "budgets",
+          "claim_and_fence",
+          "approval_gates"
+        ],
+        "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
+        "violations": [
+          "request.action must be a known capability string"
+        ]
+      },
+      "expected_outcome": "deny",
+      "id": "deny-object-action",
+      "observed_outcome": "deny",
+      "passed": true
+    },
+    {
+      "decision": {
+        "allowed": false,
+        "checks": [
+          "validity_window",
+          "subject",
+          "channel",
+          "capability",
+          "repository_ref_path",
+          "budgets",
+          "claim_and_fence",
+          "approval_gates"
+        ],
+        "contract_digest": "c79c2b3a418f5d93320af06517ff25c2db16c69832e9da1d33edcd702309a7b3",
+        "violations": [
+          "path 'docs/README.md' is outside allowed paths"
+        ]
+      },
+      "expected_outcome": "deny",
+      "id": "deny-root-pattern-nested-basename",
+      "observed_outcome": "deny",
+      "passed": true
+    },
+    {
+      "decision": {
+        "allowed": false,
+        "checks": [
+          "validity_window",
+          "subject",
+          "channel",
+          "capability",
+          "repository_ref_path",
+          "budgets",
+          "claim_and_fence",
+          "approval_gates"
+        ],
+        "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
+        "violations": [
+          "ref 'feature/team/topic' is outside scope"
+        ]
+      },
+      "expected_outcome": "deny",
+      "id": "deny-single-segment-ref-descendant",
+      "observed_outcome": "deny",
+      "passed": true
+    },
+    {
+      "decision": {
+        "allowed": false,
+        "checks": [
+          "validity_window",
+          "subject",
+          "channel",
+          "capability",
+          "repository_ref_path",
+          "budgets",
+          "claim_and_fence",
+          "approval_gates"
+        ],
+        "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
+        "violations": [
+          "request.cost_usd=25.0000000000000000001 exceeds max_cost_usd=25"
+        ]
+      },
+      "expected_outcome": "deny",
+      "id": "deny-exact-decimal-overage",
+      "observed_outcome": "deny",
+      "passed": true
+    },
+    {
+      "decision": {
+        "allowed": false,
+        "checks": [
+          "validity_window",
+          "subject",
+          "channel",
+          "capability",
+          "repository_ref_path",
+          "budgets",
+          "claim_and_fence",
+          "approval_gates"
+        ],
+        "contract_digest": "95ec0ad7e613521b23b393d7d02d5b4390c3f57e4107670412b198d9a0e92f62",
+        "violations": [
+          "request.path must be a safe relative path"
+        ]
+      },
+      "expected_outcome": "deny",
+      "id": "deny-dot-segment-path",
+      "observed_outcome": "deny",
+      "passed": true
+    },
+    {
+      "error": "request fixture malformed: duplicate JSON object key: action",
+      "expected_outcome": "malformed",
+      "id": "reject-duplicate-json-key",
+      "observed_outcome": "malformed",
+      "passed": true
+    },
+    {
+      "decision": {
         "allowed": true,
         "checks": [
           "validity_window",
@@ -392,20 +514,20 @@
     }
   ],
   "enforcement_boundary": "policy-decision-only; no tool execution",
-  "generated_at": "2026-07-23T08:50:17.773826Z",
+  "generated_at": "2026-07-23T16:16:55.740551Z",
   "implementation": {
     "name": "permitmesh",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "receipt_version": "0.1",
   "suite": {
-    "digest": "903f1dce2de48b1bd4bb54db704485c09f35fde1fbf137dd391a2a9bebf8008e",
+    "digest": "8c063373dc62002ecacad2caa9ed98eb650e2ba2c1484463e77b7f8307130127",
     "name": "PermitMesh reference conformance suite",
     "version": "0.1"
   },
   "summary": {
     "failed": 0,
-    "passed": 18,
-    "total": 18
+    "passed": 24,
+    "total": 24
   }
 }

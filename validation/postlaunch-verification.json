@@ -1,0 +1,127 @@
+{
+  "receipt_version": "0.1",
+  "validated_at": "2026-07-23T09:20:14-07:00",
+  "status": "local_pass_public_ci_pending",
+  "repository": "https://github.com/JalenBuildsHub/PermitMesh",
+  "baseline_release": "v0.1.0",
+  "candidate_release": "v0.1.1",
+  "candidate_commit": "7befd6cfa59155f697013e86b689336065516bd2",
+  "baseline_public_artifact_proof": {
+    "git_tag_install": "pass",
+    "installed_version": "0.1.0",
+    "console_script": "pass",
+    "clean_room_asset_sha256_matches_release": true,
+    "conformance_asset_sha256_matches_release": true,
+    "published_receipts": {
+      "clean_room": "pass",
+      "conformance": "18/18"
+    }
+  },
+  "findings": [
+    {
+      "id": "PM-001",
+      "class": "fail-closed",
+      "observed_in": "v0.1.0",
+      "description": "Object and array action values could raise an exception instead of returning a denial.",
+      "candidate_result": "fixed_and_regression_tested"
+    },
+    {
+      "id": "PM-002",
+      "class": "schema-runtime-parity",
+      "observed_in": "v0.1.0",
+      "description": "Missing nested channels or deny_paths fields and non-string display names could pass runtime validation despite the schema.",
+      "candidate_result": "fixed_and_regression_tested"
+    },
+    {
+      "id": "PM-003",
+      "class": "scope-boundary",
+      "observed_in": "v0.1.0",
+      "description": "A root filename pattern could match nested basenames, and a single-segment ref glob could match nested refs.",
+      "candidate_result": "fixed_with_root_anchored_segment_globs"
+    },
+    {
+      "id": "PM-004",
+      "class": "input-determinism",
+      "observed_in": "v0.1.0",
+      "description": "Duplicate JSON keys were silently accepted and decimal parsing could round a tiny budget overage down to the limit.",
+      "candidate_result": "fixed_with_duplicate_key_rejection_and_exact_decimals"
+    },
+    {
+      "id": "PM-005",
+      "class": "time-boundary",
+      "observed_in": "v0.1.0",
+      "description": "Naive evaluator datetimes were accepted and Nostr created_at zero was replaced with the current time.",
+      "candidate_result": "fixed_and_regression_tested"
+    },
+    {
+      "id": "PM-006",
+      "class": "path-canonicalization",
+      "observed_in": "v0.1.0",
+      "description": "Empty and dot path segments were accepted.",
+      "candidate_result": "fixed_and_regression_tested"
+    }
+  ],
+  "candidate_proof": {
+    "unit_tests": {
+      "passed": 66,
+      "failed": 0
+    },
+    "portable_conformance": {
+      "passed": 24,
+      "failed": 0,
+      "suite_digest": "8c063373dc62002ecacad2caa9ed98eb650e2ba2c1484463e77b7f8307130127"
+    },
+    "schema_runtime_mutations": {
+      "total": 576,
+      "false_allows": 0
+    },
+    "clean_room": [
+      {
+        "python": "3.11.15",
+        "status": "pass",
+        "elapsed_seconds": 25.547
+      },
+      {
+        "python": "3.13.5",
+        "status": "pass",
+        "elapsed_seconds": 15.8
+      }
+    ],
+    "static_checks": {
+      "ruff": "pass",
+      "mypy": "pass",
+      "bandit": "pass",
+      "compileall": "pass"
+    },
+    "artifacts": [
+      {
+        "name": "permitmesh-0.1.1-py3-none-any.whl",
+        "sha256": "1298f94d7934010bd3a8f500ad3748df291340a532cb3bb7ed73645e858a119d",
+        "fresh_install_python": "3.11.15",
+        "validate": "pass",
+        "allow_exit": 0,
+        "deny_exit": 3,
+        "conformance": "24/24"
+      },
+      {
+        "name": "permitmesh-0.1.1.tar.gz",
+        "sha256": "67d50b67e8aee4c4765578f0495c99d5f947ffed3ec667301ccff533cdef6af4",
+        "fresh_install_python": "3.13.5",
+        "validate": "pass",
+        "allow_exit": 0,
+        "deny_exit": 3,
+        "conformance": "24/24",
+        "project_materials_included": true
+      }
+    ]
+  },
+  "enforcement_boundary": "policy-decision-only; no tool execution",
+  "remaining_limits": [
+    "No cryptographic signature verification",
+    "No runtime sandbox or tool interception",
+    "No revocation distribution",
+    "No persistent cumulative budget ledger",
+    "No live Buzz relay integration",
+    "No external security review"
+  ]
+}
