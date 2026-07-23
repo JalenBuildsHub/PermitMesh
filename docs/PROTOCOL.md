@@ -1,4 +1,4 @@
-# PermitMesh Protocol 0.1
+# PermitMesh Protocol 0.2
 
 Status: exploratory draft
 
@@ -18,12 +18,16 @@ For a structurally valid permit and request, an evaluator returns:
 {
   "allowed": false,
   "contract_digest": "<sha256>",
-  "violations": ["<stable human-readable rule violation>"],
+  "violations": ["<human-readable rule violation>"],
   "checks": ["validity_window", "capability", "repository_ref_path"]
 }
 ```
 
 Evaluators should collect all independently observable violations in one pass. This makes a denial useful for both humans and agents and avoids iterative “fix one thing, discover another” loops.
+
+Violation wording is diagnostic and may evolve before 1.0. Integrations must
+not parse it as a stable machine API; `allowed`, exit codes, and the documented
+`checks` categories carry the decision semantics.
 
 ## Evaluation order
 
@@ -31,10 +35,11 @@ Evaluators should collect all independently observable violations in one pass. T
 2. Establish trusted evaluation time.
 3. Bind the request subject to the permit subject.
 4. Verify the requested capability.
-5. Resolve exact repository, ref, and path scope.
-6. Compare cumulative usage to declared budgets.
-7. Match the active claim and fencing generation.
-8. Verify action-specific approval gates.
+5. Bind high-risk actions to the approved tool, arguments, and unused nonce.
+6. Resolve exact repository, ref, and path scope.
+7. Compare cumulative usage to declared budgets.
+8. Match the active claim and fencing generation.
+9. Verify action-specific approval gates.
 
 Any violation denies the request.
 
@@ -54,21 +59,52 @@ protocol. An implementation may evaluate the profile directly or translate it
 to a general system such as OPA, Cedar, Biscuit, or an OAuth authorization
 detail. The translation must preserve fail-closed behavior.
 
+## High-risk operation binding
+
+The `shell`, `test`, `commit`, `deploy`, `publish`, and `spend` capabilities
+are high-risk. A contract that grants one of them must include a matching
+`operation_constraints` entry containing the action, a one-time nonce, and:
+
+```text
+sha256(canonical-json({
+  "action": action,
+  "operation": {
+    "tool": tool,
+    "arguments": arguments
+  }
+}))
+```
+
+The request must present the same action, exact tool-and-arguments envelope,
+and nonce. The evaluator fails closed when consumed-nonce state is absent or
+the nonce is already present.
+
+This is still a PDP boundary. The Python API receives a snapshot of consumed
+nonces and does not mutate it; the reference CLI therefore denies high-risk
+actions because it has no replay store. A production PEP must atomically
+reserve or consume the nonce, confirm the allow decision against that state,
+and execute the bound operation. A non-atomic check followed later by
+consumption is replayable and must not be described as one-time enforcement.
+
 ## Path rules
 
 - Paths use forward-slash-separated repository-relative form.
 - Absolute paths, empty segments, `.` segments, and `..` segments are invalid.
 - Deny patterns win over allow patterns.
-- Patterns are root-anchored and use case-sensitive, path-segment-aware glob
-  matching. `*` matches within one segment and `**` matches zero or more whole
-  segments. For example, `README.md` does not match `docs/README.md`, and
-  `src/*` does not match `src/package/module.py`; use `**/README.md` or
-  `src/**` for those recursive forms.
+- Patterns are root-anchored and use path-segment-aware glob matching. `*`
+  matches within one segment and `**` matches zero or more whole segments.
+  Allow matching is case-sensitive. Deny matching is case-insensitive for
+  portable safety across Windows and case-sensitive filesystems. For example,
+  `README.md` does not match `docs/README.md`, and `src/*` does not match
+  `src/package/module.py`; use `**/README.md` or `src/**` for those recursive
+  forms.
 
 Repository ref patterns use the same segment rules: `feature/*` matches
 `feature/topic` but not `feature/team/topic`; `feature/**` matches both.
 
-Production adapters must decide whether repository name and path comparison should be case-sensitive on their target filesystem. The decision must be consistent between evaluation and enforcement.
+Production adapters must preserve these semantics or enforce a strictly
+narrower rule. Repository identity comparison and filesystem canonicalization
+must remain consistent between evaluation and enforcement.
 
 ## Claims and fencing
 
@@ -89,7 +125,7 @@ finite decimal numbers, and UTF-8 characters without ASCII escaping. Strict
 file parsing rejects duplicate object keys and non-standard numeric constants
 before digesting or evaluating a document.
 
-The digest provides stable content identity, not authorship. Signature verification is deliberately outside the 0.1 reference core so integrations cannot accidentally confuse “hash matches” with “authorized issuer signed.”
+The digest provides stable content identity, not authorship. Signature verification is deliberately outside the 0.2 reference core so integrations cannot accidentally confuse “hash matches” with “authorized issuer signed.”
 
 ## Nostr transport experiment
 
@@ -105,7 +141,7 @@ The adapter requires lowercase hex Nostr public keys, sets the issuer `pubkey`, 
 
 ## Conformance receipts
 
-`permitmesh conformance` runs deterministic fixtures and emits a 0.1 receipt.
+`permitmesh conformance` runs deterministic fixtures and emits a 0.2 receipt.
 The receipt binds to the canonical suite digest and records:
 
 - implementation name and version;

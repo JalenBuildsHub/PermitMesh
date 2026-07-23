@@ -1,6 +1,6 @@
 # Conformance
 
-The v0.1 conformance suite is a portable set of adversarial policy-decision
+The v0.2 conformance suite is a portable set of adversarial policy-decision
 cases. It tests the narrow software-change profile; it does not test identity,
 signature verification, sandboxing, tool interception, or runtime enforcement.
 
@@ -37,11 +37,20 @@ The reference suite includes:
 - exceeded file, command, and cost budgets;
 - unknown request fields;
 - a non-standard non-finite JSON number, a duplicate JSON key, and an exact
-  decimal budget overage; and
+  decimal budget overage;
+- an allowed high-risk action bound to the exact approved operation and an
+  unused nonce;
+- denial of the same high-risk operation after its nonce is marked consumed;
+  and
 - complete and incomplete declared validation evidence.
 
 The final case is intentionally malformed JSON. Strict implementations should
 reject it before policy evaluation.
+
+The reference conformance runner supplies deterministic nonce state to exercise
+the decision contract. It does not atomically consume a nonce or execute the
+bound tool operation, so a passing receipt remains policy-decision evidence,
+not replay-safe enforcement proof.
 
 Completion reports are declarations supplied by a trusted adapter. The
 reference evaluator checks that every required command and artifact is named;

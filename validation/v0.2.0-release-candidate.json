@@ -1,0 +1,73 @@
+{
+  "receipt_version": "0.2",
+  "validated_at": "2026-07-23T10:23:28-07:00",
+  "status": "hold_pending_council_and_repository_governance",
+  "candidate_release": "v0.2.0",
+  "repository": "https://github.com/JalenBuildsHub/PermitMesh",
+  "core_commit": "3463a5dbd05fc920639658e69e184d5ca8606ddd",
+  "public_baseline_commit": "171dc3b2968536918743eeaad7f98e404d326188",
+  "enforcement_boundary": "policy-decision-only; no tool execution or atomic nonce consumption",
+  "security_changes": [
+    "Reject Windows drive paths",
+    "Apply deny-path matching case-insensitively for portable safety",
+    "Bind shell, test, commit, deploy, publish, and spend to an exact action, tool, canonical arguments digest, and nonce",
+    "Deny high-risk authorization without explicit consumed-nonce state",
+    "Deny replayed high-risk operation nonces",
+    "Fail closed on noncanonical in-memory contract and operation values"
+  ],
+  "atomicity_boundary": {
+    "pdp": "The evaluator checks exact operation binding and a caller-supplied snapshot of consumed nonces.",
+    "pep": "The enforcement point must atomically reserve or consume the nonce, confirm the allow decision against that state, and execute the exact bound operation.",
+    "not_provided": "The reference core and CLI do not persist nonce state or atomically combine nonce consumption with tool execution."
+  },
+  "validation": {
+    "unit_tests": {
+      "passed": 74,
+      "failed": 0
+    },
+    "portable_conformance": {
+      "passed": 26,
+      "failed": 0,
+      "suite_digest": "278054c5145ba68a381e8e7c7c7515513ba1e1541d5d7704dd7dc00cbad9f34d",
+      "receipt": "validation/conformance-v020-local.json"
+    },
+    "static_checks": {
+      "ruff": "pass",
+      "mypy": "pass",
+      "bandit": "pass",
+      "compileall": "pass"
+    },
+    "build": {
+      "status": "pass",
+      "candidate_only": true,
+      "artifacts": [
+        {
+          "name": "permitmesh-0.2.0-py3-none-any.whl",
+          "sha256": "e9c812252bcd5015491923e95f138b31031b468f515f63846fecc536532274ac"
+        },
+        {
+          "name": "permitmesh-0.2.0.tar.gz",
+          "sha256": "afacff8f1dcfe774f62c7163aaef90dd92a05bf6806915b5fea2cd6baaa5db6a"
+        }
+      ],
+      "note": "Candidate artifacts are local validation outputs and must be rebuilt from the final documentation commit before publication."
+    }
+  },
+  "public_action_gate": {
+    "four_provider_two_round_council": "pending",
+    "history_privacy_review": "pending",
+    "branch_settings_review": "pending",
+    "push": "not_authorized_until_gates_close",
+    "release": "not_authorized_until_gates_close",
+    "social_post": "not_authorized_until_gates_close"
+  },
+  "remaining_limits": [
+    "No cryptographic signature verification",
+    "No runtime sandbox or tool interception",
+    "No persistent nonce or cumulative budget ledger",
+    "No atomic nonce-consumption plus execution boundary",
+    "No revocation distribution",
+    "No live Buzz relay integration",
+    "No external security review"
+  ]
+}

@@ -122,6 +122,76 @@
       }
     ]
   },
+  "final_public_release_proof": {
+    "verified_at": "2026-07-23T10:15:49-07:00",
+    "tag": "v0.1.1",
+    "annotated_tag_object": "f525f8a9ded1f6531565e9d5dcdfe6418076a317",
+    "tag_commit": "171dc3b2968536918743eeaad7f98e404d326188",
+    "commit_relationship": {
+      "candidate_code_commit_is_ancestor": true,
+      "proof_commit_is_ancestor": true,
+      "changes_after_candidate_code_commit": [
+        "validation/clean-room-python311.json",
+        "validation/clean-room-python313.json",
+        "validation/conformance-local.json",
+        "validation/permitmesh-demo.json",
+        "validation/postlaunch-verification.json"
+      ],
+      "source_or_test_changes_after_candidate_code_commit": false
+    },
+    "release_url": "https://github.com/JalenBuildsHub/PermitMesh/releases/tag/v0.1.1",
+    "ci": {
+      "status": "pass",
+      "commit": "171dc3b2968536918743eeaad7f98e404d326188",
+      "event": "push",
+      "ref": "v0.1.1",
+      "url": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/30024894761"
+    },
+    "downloaded_assets": [
+      {
+        "name": "clean-room-python311.json",
+        "sha256": "1c36665cf7363aa3a646e65c30a78c7c00b157c7c96fe9b92dc4d49fe81af334"
+      },
+      {
+        "name": "clean-room-python313.json",
+        "sha256": "601019d7d0d3f36ec7819eab0c2f3a6ce14c8110c2e65e063ed5c15ddf2492bb"
+      },
+      {
+        "name": "conformance-local.json",
+        "sha256": "8f94b5f10663eca6435ae5196b58e9eb20c873e5457c1b4d1ded7ea1f05d894e"
+      },
+      {
+        "name": "permitmesh-0.1.1-py3-none-any.whl",
+        "sha256": "1298f94d7934010bd3a8f500ad3748df291340a532cb3bb7ed73645e858a119d"
+      },
+      {
+        "name": "permitmesh-0.1.1.tar.gz",
+        "sha256": "67d50b67e8aee4c4765578f0495c99d5f947ffed3ec667301ccff533cdef6af4"
+      },
+      {
+        "name": "postlaunch-verification.json",
+        "sha256": "b2772c4bd3a6aea0ad5d0eaa07a64443269967decf7d60b61d7e0c92cb1dc382"
+      }
+    ],
+    "fresh_installs": [
+      {
+        "artifact": "permitmesh-0.1.1-py3-none-any.whl",
+        "python": "3.11.15",
+        "installed_version": "0.1.1",
+        "conformance": "24/24"
+      },
+      {
+        "artifact": "permitmesh-0.1.1.tar.gz",
+        "python": "3.13.5",
+        "installed_version": "0.1.1",
+        "conformance": "24/24"
+      }
+    ],
+    "private_vulnerability_reporting": {
+      "enabled": true,
+      "verification_endpoint": "https://api.github.com/repos/JalenBuildsHub/PermitMesh/private-vulnerability-reporting"
+    }
+  },
   "enforcement_boundary": "policy-decision-only; no tool execution",
   "remaining_limits": [
     "No cryptographic signature verification",

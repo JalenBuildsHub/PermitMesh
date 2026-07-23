@@ -14,7 +14,7 @@ body:
     id: implementation
     attributes:
       label: Implementation and version
-      placeholder: permitmesh 0.1.0
+      placeholder: permitmesh 0.2.0
     validations:
       required: true
   - type: dropdown

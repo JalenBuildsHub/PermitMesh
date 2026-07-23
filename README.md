@@ -16,28 +16,31 @@ A PermitMesh contract states:
 - who authorized the agent;
 - which repository, ref, channel, and paths it may touch;
 - which actions it may perform;
+- the exact tool and arguments approved for each high-risk action;
 - its file, command, time, and cost limits;
 - which actions require human approval;
-- which live claim and fencing generation it belongs to; and
+- which live claim and fencing generation it belongs to;
+- which one-time operation nonce the enforcement point must consume; and
 - what proof must exist before the work is complete.
 
 The reference CLI evaluates proposed actions deterministically and fails closed with a machine-readable explanation.
 
-> Status: **HYPOTHESIS — NOT ADOPTED.** Version 0.1 is a local
+> Status: **HYPOTHESIS — NOT ADOPTED.** Version 0.2 is a local
 > interoperability experiment, not a security boundary.
 
 ## Why this exists
 
 [Buzz](https://github.com/block/buzz) gives people and agents cryptographic
-identities in one signed event stream. Its roadmap names tighter agent scoping
-as future work.
-
-PermitMesh explores a complementary layer:
+identities in a shared event stream. PermitMesh independently explores a
+complementary policy layer for software-changing agents:
 
 > **Identity says who acted. A software-work permit describes the boundary
 > an enforcement point should apply.**
 
-Buzz's draft owner-attestation proposal proves which owner authorized an agent key and can restrict event kinds or self-declared timestamps. It explicitly does not provide trusted wall-clock expiry. PermitMesh adds the work-shaped constraints that an execution boundary needs: paths, actions, budgets, approval gates, claims, and fencing generations.
+PermitMesh adds work-shaped constraints that an execution boundary can apply:
+paths, actions, budgets, approval gates, claims, and fencing generations. It
+does not assume that Buzz will adopt this format or that identity alone
+supplies trusted authorization facts.
 
 PermitMesh does not fork Buzz, replace Nostr identity, or claim to be an accepted Buzz protocol. It is transport-neutral and includes an experimental adapter that turns a valid permit into an **unsigned** Nostr application-data event template.
 
@@ -59,8 +62,8 @@ python -m permitmesh validate examples\contract.valid.json
 # An in-scope edit is allowed.
 python -m permitmesh authorize examples\contract.valid.json examples\request.allowed.json --evaluation-time 2026-07-23T12:00:00Z
 
-# A protected deploy with a stale claim, wrong ref, forbidden path,
-# exceeded budgets, and no approval is denied with every reason.
+# A protected deploy with no exact operation binding, a stale claim,
+# wrong ref, forbidden path, exceeded budgets, and no approval is denied.
 python -m permitmesh authorize examples\contract.valid.json examples\request.denied.json --evaluation-time 2026-07-23T12:00:00Z
 ```
 
@@ -73,12 +76,14 @@ The allowed request returns:
 }
 ```
 
-The denied request reports all eight violations, including:
+The denied request reports all ten violations, including:
 
 ```json
 {
   "allowed": false,
   "violations": [
+    "request.operation is required for high-risk action 'deploy'",
+    "request.operation_nonce must be 16-128 safe characters",
     "ref 'main' is outside scope",
     "path '.env' matches a deny rule",
     "claim_id does not match the active contract",
@@ -94,7 +99,7 @@ Run the complete reproducible demo:
 .\scripts\demo.ps1
 ```
 
-Run the 24-case adversarial conformance suite and save a receipt:
+Run the 26-case adversarial conformance suite and save a receipt:
 
 ```powershell
 permitmesh conformance examples\conformance-suite.json `
@@ -104,8 +109,9 @@ permitmesh conformance examples\conformance-suite.json `
 The suite covers subject and channel mismatch, unknown and malformed actions,
 root-anchored path and ref glob edges, traversal and non-canonical paths,
 duplicate JSON keys, exact decimal budgets, malformed approvals, stale claims
-and fences, validity boundaries, unknown fields, non-finite input, and required
-completion evidence.
+and fences, exact high-risk operation binding, replayed operation nonces,
+validity boundaries, unknown fields, non-finite input, and required completion
+evidence.
 
 ## How it fits
 
@@ -116,8 +122,8 @@ flowchart LR
     C --> E
     E -->|"allow"| X["Agent runtime executes"]
     E -->|"deny + reasons"| H["Human / agent revises scope"]
-    X --> R["Signed workspace event + receipt"]
-    R --> B["Buzz / Nostr relay"]
+    X --> R["Integration-supplied event / receipt"]
+    R -.->|"optional signed transport"| B["Buzz / Nostr relay"]
 ```
 
 PermitMesh is the policy decision point. The runtime, relay, or tool proxy remains the enforcement point. A JSON file sitting beside an unrestricted agent does not enforce anything.
@@ -141,7 +147,7 @@ request, and `4` for a conformance suite with failed cases.
 
 ## Contract surface
 
-The v0.1 contract, request, completion-report, and conformance-receipt schemas
+The v0.2 contract, request, completion-report, and conformance-receipt schemas
 live in [`schema/`](schema). The reference evaluator additionally checks
 cross-document and semantic rules JSON Schema cannot express cleanly:
 
@@ -153,7 +159,12 @@ cross-document and semantic rules JSON Schema cannot express cleanly:
 - repository and ref scope match;
 - consumption stays within declared budgets;
 - the live claim and fencing generation match;
+- high-risk actions match a preapproved action, tool, arguments digest, and
+  one-time nonce;
 - approval thresholds are possible and satisfied.
+
+In v0.2, `shell`, `test`, `commit`, `deploy`, `publish`, and `spend` are
+high-risk capabilities and require that exact operation binding.
 
 The strict loader rejects duplicate object keys and non-standard numeric
 constants, and preserves decimal precision for budget comparisons. The digest
@@ -173,10 +184,15 @@ The adapter is exploratory. An upstream design conversation should decide whethe
 
 ## Trust boundaries
 
-- PermitMesh 0.1 validates policy; it does not sandbox tools.
+- PermitMesh 0.2 validates policy; it does not sandbox tools.
 - Signature metadata may be carried, but the reference CLI does not verify signatures yet.
 - `request.at` is receipt metadata only and never controls authorization time. The evaluator uses its own clock; a production adapter must ensure that clock is trustworthy.
 - A fencing generation is useful only if the resource being protected rejects stale generations.
+- High-risk authorization requires explicit consumed-nonce state. The Python
+  evaluator checks that state but does not mutate it. A real enforcement point
+  must atomically reserve or consume the approved nonce and execute the exact
+  tool-and-arguments operation, or another worker could reuse the same
+  authorization decision.
 - A relay storing a permit does not imply that an execution runtime enforced it.
 
 See [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) for the explicit boundary.

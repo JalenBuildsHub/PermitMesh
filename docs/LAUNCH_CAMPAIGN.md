@@ -1,13 +1,14 @@
 # PermitMesh Launch Campaign
 
-Status: public launch and three targeted invitations live; awaiting independent
-reaction before any Buzz outreach
+Status: v0.1.1 is public; v0.2.0 security hardening is held for council,
+repository-governance review, and release proof before publication
 
 ## Positioning
 
 - **Category:** software-change authorization profile and conformance lab
 - **One line:** PermitMesh makes repo, path, budget, approval, claim-fence, and required-proof constraints portable across agent runtimes.
-- **Proof:** a dependency-free evaluator plus eighteen adversarial fixtures and a machine-readable conformance receipt.
+- **Proof:** a dependency-free evaluator, 74 unit tests, 26 adversarial
+  fixtures, and a machine-readable conformance receipt.
 - **Ask:** run it against a real workflow, state what actually enforced the decision, and report false allows or false denies.
 
 ## Audience
@@ -31,7 +32,7 @@ Secondary:
 4. Personally invite three relevant maintainers to reproduce the suite.
 5. Wait for at least one independent maintainer reaction or reproduction.
 6. Only then open one design-first Buzz discussion, if the evidence still points there.
-7. Publish findings after 10–14 days, including reasons the idea may be wrong.
+7. Publish findings after 10-14 days, including reasons the idea may be wrong.
 
 Do not carpet-post communities, ask for stars, or describe the project as a security sandbox.
 
@@ -72,8 +73,19 @@ No model decides. No vague “be careful” prompt.
 It is a PDP, not a sandbox or enforcement proxy, and it is not affiliated with
 Block, Buzz, or a standards body.
 
-The repo includes a candid prior-art matrix and eighteen-case conformance suite.
+The repo includes a candid prior-art matrix and 26-case conformance suite.
 We want maintainers to break the profile with real workflows.
+
+## v0.2.0 update draft
+
+PermitMesh v0.2.0 hardens the boundary exposed by our own post-launch testing:
+Windows-safe deny matching plus exact action, tool, arguments, and one-time
+nonce binding for high-risk operations.
+
+The evaluator checks nonce state but does not consume it. A real enforcement
+point must atomically consume the nonce and execute the exact operation.
+
+74 tests; 26/26 conformance. Still a policy-decision profile, not enforcement.
 
 ## Upstream discussion draft
 

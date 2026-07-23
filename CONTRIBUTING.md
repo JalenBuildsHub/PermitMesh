@@ -18,4 +18,8 @@ python -m compileall -q src tests
 python -m permitmesh conformance examples\conformance-suite.json
 ```
 
-Contributions must preserve fail-closed behavior, exhaustive denial reasons, deterministic digests, and explicit signed/unsigned states.
+Contributions must preserve fail-closed behavior, exhaustive denial reasons,
+deterministic digests, exact high-risk operation binding, explicit replay
+state, and explicit signed/unsigned states. Do not describe nonce checks as
+one-time enforcement unless the enforcement point atomically consumes the
+nonce with execution.

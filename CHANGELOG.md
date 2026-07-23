@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0 - 2026-07-23
+
+Security-boundary hardening release candidate.
+
+- Treat Windows drive paths as unsafe and apply deny-path matching
+  case-insensitively for portable safety.
+- Require every granted high-risk capability (`shell`, `test`, `commit`,
+  `deploy`, `publish`, and `spend`) to bind an exact action, tool, canonical
+  arguments digest, and one-time nonce.
+- Require explicit consumed-nonce state and deny replayed high-risk operations.
+  The evaluator does not persist or atomically consume that state; a production
+  enforcement point must consume the nonce and execute as one protected
+  operation.
+- Fail closed on noncanonical in-memory contract and operation values.
+- Advance the contract, request, completion, and conformance formats to 0.2.
+- Expand regression coverage to 74 unit tests and 26 portable conformance
+  cases.
+
 ## 0.1.1 - 2026-07-23
 
 Post-launch hardening release.
