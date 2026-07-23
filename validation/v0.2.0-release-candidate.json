@@ -1,11 +1,12 @@
 {
   "receipt_version": "0.2",
-  "validated_at": "2026-07-23T10:34:55-07:00",
-  "status": "hold_pending_council_and_repository_governance",
+  "validated_at": "2026-07-23T10:42:06-07:00",
+  "status": "hold_incomplete_council_and_github_signing_registration",
   "candidate_release": "v0.2.0",
   "repository": "https://github.com/JalenBuildsHub/PermitMesh",
-  "core_commit": "c84234e38726234daa866b2da99f18ee0cf6d5c9",
-  "documentation_commit": "d563b6202959bb39ddc2446267c8220e2bff283c",
+  "release_candidate_source_commit": "c6ca2ccf057ec70dbe67a6874253998ca9989abd",
+  "core_commit": "c6ca2ccf057ec70dbe67a6874253998ca9989abd",
+  "documentation_commit": "c6ca2ccf057ec70dbe67a6874253998ca9989abd",
   "public_baseline_commit": "6fa3fd803ada399de6f8caad6930ba66c78ecab3",
   "enforcement_boundary": "policy-decision-only; no tool execution or atomic nonce consumption",
   "security_changes": [
@@ -23,20 +24,22 @@
   },
   "validation": {
     "unit_tests": {
-      "passed": 74,
+      "passed": 75,
       "failed": 0
     },
     "portable_conformance": {
-      "passed": 26,
+      "passed": 27,
       "failed": 0,
-      "suite_digest": "278054c5145ba68a381e8e7c7c7515513ba1e1541d5d7704dd7dc00cbad9f34d",
+      "suite_digest": "0a2440b0ece5d4c84a01bcdb18ae222ba5e714ec668fb60d14fba2d5575bd9bf",
       "receipt": "validation/conformance-v020-local.json"
     },
     "static_checks": {
       "ruff": "pass",
       "mypy": "pass",
       "bandit": "pass",
-      "compileall": "pass"
+      "compileall": "pass",
+      "windows_local": "pass",
+      "windows_and_ubuntu_ci": "pending_source_commit_push"
     },
     "build": {
       "status": "pass",
@@ -44,23 +47,23 @@
       "artifacts": [
         {
           "name": "permitmesh-0.2.0-py3-none-any.whl",
-          "sha256": "ea15aced056076b901487310245644a25f4924d40958f42275fef78c9c8723a1"
+          "sha256": "aa1d3654b50ee16609ea59ea6beb7ef2fe3aeeed8b812b01ee4769ee09d1fd40"
         },
         {
           "name": "permitmesh-0.2.0.tar.gz",
-          "sha256": "fbf35905031d401ad0e735f9d76a3aa1ab078f14b70bd429cee7c0ca51ca200a"
+          "sha256": "ae3b3ab103c66d6e7059f881c5f7f138047fd5c71184fe53398fe655d7dc0722"
         }
       ],
-      "note": "Candidate artifacts were rebuilt from the reconciled, signed local history and remain held from publication until the external gates close."
+      "note": "Candidate artifacts were rebuilt from the signed release-candidate source commit and remain held from publication until the external gates close."
     }
   },
   "public_action_gate": {
-    "four_provider_two_round_council": "pending",
-    "history_privacy_review": "pass_local_rewrite_pending_remote_reconciliation",
-    "branch_settings_review": "pending",
-    "push": "not_authorized_until_gates_close",
-    "release": "not_authorized_until_gates_close",
-    "social_post": "not_authorized_until_gates_close"
+    "four_provider_two_round_council": "hold_invalid_evidence_two_of_four_round_one_only",
+    "history_privacy_review": "pass_remote_verified",
+    "branch_settings_review": "pass_strict_required_checks_no_force_push_or_delete",
+    "push": "sanitized_history_reconciled",
+    "release": "held_until_complete_council_and_final_ci",
+    "social_post": "held_until_release"
   },
   "remaining_limits": [
     "No cryptographic signature verification",

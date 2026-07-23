@@ -226,6 +226,30 @@
           "claim_and_fence",
           "approval_gates"
         ],
+        "contract_digest": "8ea8fd8307a5e05cb2c56e31a66edb6bb233a111c567cc72315a31219b14fe0a",
+        "violations": [
+          "request.path must be a safe relative path"
+        ]
+      },
+      "expected_outcome": "deny",
+      "id": "deny-windows-short-name-path",
+      "observed_outcome": "deny",
+      "passed": true
+    },
+    {
+      "decision": {
+        "allowed": false,
+        "checks": [
+          "validity_window",
+          "subject",
+          "channel",
+          "capability",
+          "operation_binding",
+          "repository_ref_path",
+          "budgets",
+          "claim_and_fence",
+          "approval_gates"
+        ],
         "contract_digest": "636e4a2137313a7131cc5f1b3ec016ba6b7152564d928f83255bf52a0a9a3ca0",
         "violations": [
           "path 'src/permitmesh/policy.py' is outside allowed paths"
@@ -582,20 +606,20 @@
     }
   ],
   "enforcement_boundary": "policy-decision-only; no tool execution",
-  "generated_at": "2026-07-23T17:22:57.136599Z",
+  "generated_at": "2026-07-23T17:41:52.249705Z",
   "implementation": {
     "name": "permitmesh",
     "version": "0.2.0"
   },
   "receipt_version": "0.2",
   "suite": {
-    "digest": "278054c5145ba68a381e8e7c7c7515513ba1e1541d5d7704dd7dc00cbad9f34d",
+    "digest": "0a2440b0ece5d4c84a01bcdb18ae222ba5e714ec668fb60d14fba2d5575bd9bf",
     "name": "PermitMesh reference conformance suite",
     "version": "0.2"
   },
   "summary": {
     "failed": 0,
-    "passed": 26,
-    "total": 26
+    "passed": 27,
+    "total": 27
   }
 }
