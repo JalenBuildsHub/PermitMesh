@@ -39,7 +39,17 @@
       "bandit": "pass",
       "compileall": "pass",
       "windows_local": "pass",
-      "windows_and_ubuntu_ci": "pending_source_commit_push"
+      "windows_and_ubuntu_ci": {
+        "status": "pass",
+        "commit": "517c1e5c137ebe02436e7d367f5b99760fc960fb",
+        "run": "https://github.com/JalenBuildsHub/PermitMesh/actions/runs/30030556249",
+        "jobs": [
+          "test (ubuntu-latest, py3.11)",
+          "test (ubuntu-latest, py3.13)",
+          "test (windows-latest, py3.11)",
+          "test (windows-latest, py3.13)"
+        ]
+      }
     },
     "build": {
       "status": "pass",
