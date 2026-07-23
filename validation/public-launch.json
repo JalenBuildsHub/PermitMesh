@@ -1,0 +1,16 @@
+{
+  "campaign_version": "0.1",
+  "published_at": "2026-07-23T02:00:45-07:00",
+  "repository": "https://github.com/JalenBuildsHub/PermitMesh",
+  "release": "https://github.com/JalenBuildsHub/PermitMesh/releases/tag/v0.1.0",
+  "launch_post": "https://x.com/MarketFlipper/status/2080216066102600131",
+  "maintainer_invitation_post": "https://x.com/MarketFlipper/status/2080216469456273784",
+  "invited_accounts": [
+    "@OpenHandsDev",
+    "@thdxr",
+    "@bcherny"
+  ],
+  "buzz_outreach": "withheld_pending_independent_reaction",
+  "qualifying_external_reactions": 0,
+  "status": "awaiting_independent_reaction"
+}

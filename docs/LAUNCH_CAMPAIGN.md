@@ -1,6 +1,7 @@
 # PermitMesh Launch Campaign
 
-Status: public repository live; independent conformance outreach next
+Status: public launch and three targeted invitations live; awaiting independent
+reaction before any Buzz outreach
 
 ## Positioning
 
