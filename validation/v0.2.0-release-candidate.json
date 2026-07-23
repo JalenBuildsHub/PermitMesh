@@ -5,6 +5,7 @@
   "candidate_release": "v0.2.0",
   "repository": "https://github.com/JalenBuildsHub/PermitMesh",
   "core_commit": "3463a5dbd05fc920639658e69e184d5ca8606ddd",
+  "documentation_commit": "728c086e8dad7c6506933155d5e5811eec40f077",
   "public_baseline_commit": "171dc3b2968536918743eeaad7f98e404d326188",
   "enforcement_boundary": "policy-decision-only; no tool execution or atomic nonce consumption",
   "security_changes": [
