@@ -27,7 +27,7 @@ PermitMesh 0.2 is a policy format and reference decision engine. It becomes a se
 | Agent backdates an expired permit | request timestamps never control authorization time | adapter must protect the evaluator's clock |
 | Permit content is modified | canonical SHA-256 digest | digest alone does not prove issuer identity |
 | Forged issuer or approval | no claimed protection in 0.2 core | signature verification is required before production |
-| Path traversal | absolute and parent traversal rejection | symlinks and filesystem canonicalization are enforcer concerns |
+| Path traversal and Windows aliases | absolute, parent, ADS, reserved-name, and DOS short-name rejection | symlinks and filesystem canonicalization are enforcer concerns |
 | Confused deputy across repos | exact repository/ref/path match | repository identity must be bound to a trusted canonical ID |
 
 ## Security invariants
@@ -50,7 +50,7 @@ PermitMesh 0.2 is a policy format and reference decision engine. It becomes a se
 - NIP-01 or NIP-OA signature verification;
 - revocation distribution;
 - protected evaluator clock and relay receipt proofs;
-- symlink-safe filesystem enforcement;
+- symlink-safe filesystem enforcement and trusted resolution of any platform aliases before applying the decision;
 - integration with Buzz relay, MCP, ACP, Goose, Codex, or Claude Code;
 - cumulative budget storage across requests;
 - a persistent nonce store or atomic nonce-consumption plus execution boundary;

@@ -61,6 +61,23 @@ def leaf_paths(
     return paths
 
 
+def all_child_paths(
+    value: object, path: tuple[object, ...] = ()
+) -> list[tuple[object, ...]]:
+    paths: list[tuple[object, ...]] = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            child = path + (key,)
+            paths.append(child)
+            paths.extend(all_child_paths(item, child))
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            child = path + (index,)
+            paths.append(child)
+            paths.extend(all_child_paths(item, child))
+    return paths
+
+
 def replace_path(document: object, path: tuple[object, ...], value: object) -> None:
     target = document
     for part in path[:-1]:
@@ -124,6 +141,13 @@ class ContractValidationTests(unittest.TestCase):
         self.contract["capabilities"] = [{"unexpected": True}]
         self.assertIn(
             "capabilities must contain strings",
+            validate_contract(self.contract),
+        )
+
+    def test_malformed_capability_container_fails_closed(self) -> None:
+        self.contract["capabilities"] = None
+        self.assertIn(
+            "capabilities must be a non-empty array",
             validate_contract(self.contract),
         )
 
@@ -268,7 +292,7 @@ class SchemaRuntimeParityTests(unittest.TestCase):
 
     def test_contract_type_mutations_never_false_allow(self) -> None:
         validator = self.validator("permitmesh-contract.schema.json")
-        for path in leaf_paths(self.contract):
+        for path in all_child_paths(self.contract):
             for value in MUTATION_VALUES:
                 with self.subTest(path=path, value=repr(value)):
                     mutated = deepcopy(self.contract)
@@ -639,6 +663,7 @@ class AuthorizationTests(unittest.TestCase):
             ".env.",
             ".env::$DATA",
             "CON/config",
+            "SECRET~1/key.txt",
             "",
             None,
         ):
@@ -744,7 +769,7 @@ class NostrAdapterTests(unittest.TestCase):
 class ConformanceTests(unittest.TestCase):
     def test_reference_suite_passes(self) -> None:
         receipt = run_conformance(ROOT / "examples" / "conformance-suite.json")
-        self.assertEqual(receipt["summary"], {"total": 26, "passed": 26, "failed": 0})
+        self.assertEqual(receipt["summary"], {"total": 27, "passed": 27, "failed": 0})
         self.assertEqual(
             receipt["enforcement_boundary"],
             "policy-decision-only; no tool execution",

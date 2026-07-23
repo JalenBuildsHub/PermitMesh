@@ -25,6 +25,9 @@ The following are expected limitations in 0.2 and should not be reported as nove
 - cumulative budget storage and revocation are not implemented.
 - the core checks caller-supplied consumed-nonce state but does not persist or
   atomically consume nonces with tool execution.
+- path checks reject ambiguous Windows spellings, including DOS short-name
+  syntax, but a production enforcer must still resolve filesystem aliases and
+  symlinks before executing against the evaluated path.
 
 Unexpected false allows, path-matching escapes, operation-binding or replay
 bypasses, digest inconsistencies, and misleading signed/unsigned states are in

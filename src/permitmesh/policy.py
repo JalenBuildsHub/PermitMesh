@@ -53,6 +53,7 @@ WINDOWS_RESERVED_NAMES = {
     *(f"com{index}" for index in range(1, 10)),
     *(f"lpt{index}" for index in range(1, 10)),
 }
+WINDOWS_SHORT_NAME_PATTERN = re.compile(r"~[1-9][0-9]*(?:\.|$)", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -165,6 +166,7 @@ def _is_safe_relative_path(value: str) -> bool:
         and all(part not in {"", ".", ".."} for part in parts)
         and all(":" not in part for part in parts)
         and all(not part.endswith((".", " ")) for part in parts)
+        and all(WINDOWS_SHORT_NAME_PATTERN.search(part) is None for part in parts)
         and all(
             part.split(".", 1)[0].casefold() not in WINDOWS_RESERVED_NAMES
             for part in parts
@@ -408,7 +410,7 @@ def validate_contract(contract: Any) -> tuple[str, ...]:
             nonce = constraint.get("nonce")
             if not isinstance(action, str) or action not in HIGH_RISK_CAPABILITIES:
                 violations.append(f"{prefix}.action must be a high-risk capability")
-            elif action not in capabilities:
+            elif not isinstance(capabilities, list) or action not in capabilities:
                 violations.append(f"{prefix}.action must be granted by capabilities")
             else:
                 constrained_actions.add(action)

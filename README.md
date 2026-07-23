@@ -99,7 +99,7 @@ Run the complete reproducible demo:
 .\scripts\demo.ps1
 ```
 
-Run the 26-case adversarial conformance suite and save a receipt:
+Run the 27-case adversarial conformance suite and save a receipt:
 
 ```powershell
 permitmesh conformance examples\conformance-suite.json `
@@ -152,7 +152,9 @@ live in [`schema/`](schema). The reference evaluator additionally checks
 cross-document and semantic rules JSON Schema cannot express cleanly:
 
 - the validity window is ordered and active;
-- paths and path patterns are relative and traversal-free;
+- paths and path patterns are relative and traversal-free, with ambiguous
+  Windows drive, ADS, reserved-name, trailing-dot/space, and DOS short-name
+  spellings rejected;
 - path and ref globs are root-anchored; `*` matches one segment and `**`
   recursively matches segments;
 - deny patterns override allow patterns;

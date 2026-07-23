@@ -15,7 +15,7 @@ Security-boundary hardening release candidate.
   operation.
 - Fail closed on noncanonical in-memory contract and operation values.
 - Advance the contract, request, completion, and conformance formats to 0.2.
-- Expand regression coverage to 74 unit tests and 26 portable conformance
+- Expand regression coverage to 75 unit tests and 27 portable conformance
   cases.
 
 ## 0.1.1 - 2026-07-23

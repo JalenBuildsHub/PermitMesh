@@ -73,6 +73,14 @@
       "expected_violations_contain": ["safe relative path"]
     },
     {
+      "id": "deny-windows-short-name-path",
+      "contract": "contract.valid.json",
+      "request": "conformance/request.windows-short-name.json",
+      "evaluation_time": "2026-07-23T12:00:00Z",
+      "expected_outcome": "deny",
+      "expected_violations_contain": ["safe relative path"]
+    },
+    {
       "id": "deny-single-segment-glob-descendant",
       "contract": "conformance/contract.single-segment-path.json",
       "request": "request.allowed.json",
